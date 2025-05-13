@@ -4,11 +4,11 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
 import { useCart } from '../../context/CartContext';
-import { products } from '../../data/products';
 import Fab from '@mui/material/Fab';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useAuth } from '../../context/AuthContext';
+import logo from '../../logo.png';
 
 const Header: React.FC = () => {
 	const { items } = useCart();
@@ -46,6 +46,9 @@ const Header: React.FC = () => {
 		<>
 			<AppBar position="static" sx={{ background: 'linear-gradient(to right, #8b6d5c, #a3d6c4)' }}>
 				<Toolbar>
+					<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+						<img src={logo} alt="Nadius" style={{ width: '60px', height: '60px' }} />
+					</Box>
 					<Typography
 						variant="h6"
 						component={RouterLink}
@@ -55,9 +58,10 @@ const Header: React.FC = () => {
 							textDecoration: 'none',
 							color: 'white',
 							fontFamily: 'JetBrains Mono',
+							fontSize: '30px',
 						}}
 					>
-						{'{Nadius}'}
+						{' Nadius '}
 					</Typography>
 					<Box sx={{ display: 'flex', gap: 2, alignItems: 'center', position: 'relative' }}>
 						{!searchOpen && (
