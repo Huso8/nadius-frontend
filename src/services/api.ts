@@ -4,14 +4,14 @@ import { Product, Order } from '../types';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const API_ENDPOINTS = {
-	PRODUCTS: `${API_URL}/products`,
-	ORDERS: `${API_URL}/orders`,
-	AUTH: `${API_URL}/auth`,
-	REVIEWS: `${API_URL}/reviews`
+	PRODUCTS: `/products`,
+	ORDERS: `/orders`,
+	AUTH: `/auth`,
+	REVIEWS: `/reviews`,
 } as const;
 
 const api = axios.create({
-	baseURL: `${API_URL}/api`,
+	baseURL: API_URL,
 	headers: {
 		'Content-Type': 'application/json',
 	},
