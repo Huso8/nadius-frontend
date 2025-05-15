@@ -44,6 +44,7 @@ api.interceptors.response.use(
 
 export const getProducts = async (): Promise<Product[]> => {
 	const response = await api.get(API_ENDPOINTS.PRODUCTS);
+	console.log('API URL:', process.env.REACT_APP_API_URL);
 	return response.data;
 };
 
