@@ -5,10 +5,10 @@ import { Product, Order } from '../types';
 const API_URL = process.env.API_URL || 'http://localhost:5000';
 // const API_URL = process.env.API_URL;
 const API_ENDPOINTS = {
-	PRODUCTS: '/api/products',
-	ORDERS: '/api/orders',
-	AUTH: '/api/auth',
-	REVIEWS: '/api/reviews'
+	PRODUCTS: '/products',
+	ORDERS: '/orders',
+	AUTH: '/auth',
+	REVIEWS: '/reviews'
 } as const;
 
 const api = axios.create({
