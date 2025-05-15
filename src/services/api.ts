@@ -1,14 +1,13 @@
 import axios, { AxiosError } from 'axios';
 import { Product, Order } from '../types';
 
-// Принудительно устанавливаем URL API
 const API_URL = process.env.API_URL || 'http://localhost:5000';
-// const API_URL = process.env.API_URL;
+
 const API_ENDPOINTS = {
-	PRODUCTS: '/products',
-	ORDERS: '/orders',
-	AUTH: '/auth',
-	REVIEWS: '/reviews'
+	PRODUCTS: `${API_URL}/products`,
+	ORDERS: `${API_URL}/orders`,
+	AUTH: `${API_URL}/auth`,
+	REVIEWS: `${API_URL}/reviews`
 } as const;
 
 const api = axios.create({
