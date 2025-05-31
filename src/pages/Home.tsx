@@ -3,6 +3,7 @@ import { Container, Typography, Box, Button, Grid, Card, CardContent, CardMedia 
 import { Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { styled } from '@mui/material/styles';
+import OptimizedImage from '../components/OptimizedImage';
 
 const MotionTypography = motion(Typography);
 const MotionButton = motion(Button);
@@ -68,7 +69,7 @@ const Home: React.FC = () => {
 			>
 				<Container maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
 					<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2, position: 'relative', zIndex: 2 }}>
-						<img
+						<OptimizedImage
 							src={LOGO_URL}
 							alt="Nadius logo"
 							style={{
@@ -155,11 +156,16 @@ const Home: React.FC = () => {
 								sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100%', background: 'none', boxShadow: 'none' }}
 							>
 								<StyledFeatureCard>
-									<CardMedia
-										component="img"
-										image={feature.image}
+									<OptimizedImage
+										src={feature.image}
 										alt={feature.title}
-										sx={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: '32px 32px 0 0', mb: 0 }}
+										style={{
+											width: '100%',
+											height: 180,
+											objectFit: 'cover',
+											borderRadius: '32px 32px 0 0',
+											marginBottom: 0
+										}}
 									/>
 									<CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', p: 3 }}>
 										<Typography variant="h5" component="h3" gutterBottom align="center" sx={{ fontWeight: 700 }}>

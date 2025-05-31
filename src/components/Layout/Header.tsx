@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AppBar, Toolbar, Typography, Button, Badge, Box, IconButton, InputBase, Paper, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -8,6 +8,9 @@ import Fab from '@mui/material/Fab';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useAuth } from '../../context/AuthContext';
+import { useProducts } from '../../services/api';
+import { Product } from '../../types';
+import debounce from 'lodash/debounce';
 import logo from '../../logo.png';
 
 const Header: React.FC = () => {
@@ -16,11 +19,35 @@ const Header: React.FC = () => {
 	const [searchOpen, setSearchOpen] = useState(false);
 	const [search, setSearch] = useState('');
 	const [focused, setFocused] = useState(false);
-	const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
+	const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 	const navigate = useNavigate();
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 	const { isAuthenticated, logout } = useAuth();
+	const { data: products = [] } = useProducts();
+
+	// Оптимизированная функция фильтрации с debounce
+	const debouncedFilter = useCallback(
+		debounce((query: string) => {
+			if (!query.trim()) {
+				setFilteredProducts([]);
+				return;
+			}
+			const filtered = products.filter(product =>
+				product.name.toLowerCase().includes(query.toLowerCase())
+			);
+			setFilteredProducts(filtered.slice(0, 5)); // Ограничиваем количество результатов
+		}, 300),
+		[products]
+	);
+
+	// Обработчик изменения поискового запроса
+	useEffect(() => {
+		debouncedFilter(search);
+		return () => {
+			debouncedFilter.cancel();
+		};
+	}, [search, debouncedFilter]);
 
 	const handleSearchSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
