@@ -1,6 +1,5 @@
 import axios, { AxiosError } from 'axios';
 import { Product, Order } from '../types';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -43,105 +42,62 @@ api.interceptors.response.use(
 	}
 );
 
-// React Query хуки
-export const useProducts = () => {
-	return useQuery({
-		queryKey: ['products'],
-		queryFn: async () => {
-			const response = await api.get(API_ENDPOINTS.PRODUCTS);
-			return response.data as Product[];
-		}
-	});
+export const getProducts = async (): Promise<Product[]> => {
+	const response = await api.get(API_ENDPOINTS.PRODUCTS);
+	return response.data;
 };
 
-export const useProduct = (id: string) => {
-	return useQuery({
-		queryKey: ['product', id],
-		queryFn: async () => {
-			const response = await api.get(`${API_ENDPOINTS.PRODUCTS}/${id}`);
-			return response.data as Product;
-		},
-		enabled: !!id
-	});
+export const getProduct = async (id: string): Promise<Product> => {
+	const response = await api.get(`${API_ENDPOINTS.PRODUCTS}/${id}`);
+	return response.data;
 };
 
-export const useOrders = () => {
-	return useQuery({
-		queryKey: ['orders'],
-		queryFn: async () => {
-			const response = await api.get(API_ENDPOINTS.ORDERS);
-			return response.data as Order[];
-		}
-	});
+export const createOrder = async (orderData: Omit<Order, '_id' | 'status' | 'createdAt'>): Promise<Order> => {
+	const response = await api.post(API_ENDPOINTS.ORDERS, orderData);
+	return response.data;
 };
 
-export const useCreateOrder = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: async (orderData: Omit<Order, '_id' | 'status' | 'createdAt'>) => {
-			const response = await api.post(API_ENDPOINTS.ORDERS, orderData);
-			return response.data as Order;
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['orders'] });
-		}
-	});
+export const getOrders = async (): Promise<Order[]> => {
+	const response = await api.get(API_ENDPOINTS.ORDERS);
+	return response.data;
 };
 
-export const useUpdateOrderStatus = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: async ({ id, status }: { id: string; status: Order['status'] }) => {
-			const response = await api.patch(`${API_ENDPOINTS.ORDERS}/${id}/status`, { status });
-			return response.data as Order;
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['orders'] });
-		}
-	});
+export const getOrder = async (id: string): Promise<Order> => {
+	const response = await api.get(`${API_ENDPOINTS.ORDERS}/${id}`);
+	return response.data;
 };
 
-export const useAuth = () => {
-	const queryClient = useQueryClient();
-	return {
-		register: useMutation({
-			mutationFn: async (userData: { email: string; password: string; name: string }) => {
-				const response = await api.post(`${API_ENDPOINTS.AUTH}/register`, userData);
-				return response.data;
-			}
-		}),
-		login: useMutation({
-			mutationFn: async (credentials: { email: string; password: string }) => {
-				const response = await api.post(`${API_ENDPOINTS.AUTH}/login`, credentials);
-				return response.data;
-			},
-			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: ['user'] });
-			}
-		})
-	};
+export const register = async (userData: { email: string; password: string; name: string }) => {
+	const response = await api.post(`${API_ENDPOINTS.AUTH}/register`, userData);
+	return response.data;
 };
 
-export const useReviews = (productId: string) => {
-	return useQuery({
-		queryKey: ['reviews', productId],
-		queryFn: async () => {
-			const response = await api.get(`${API_ENDPOINTS.REVIEWS}/${productId}`);
-			return response.data;
-		},
-		enabled: !!productId
-	});
+export const login = async (credentials: { email: string; password: string }) => {
+	const response = await api.post(`${API_ENDPOINTS.AUTH}/login`, credentials);
+	return response.data;
 };
 
-export const useAddReview = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: async (data: { product: string; rating: number; comment: string }) => {
-			const response = await api.post(API_ENDPOINTS.REVIEWS, data);
-			return response.data;
-		},
-		onSuccess: (_, variables) => {
-			queryClient.invalidateQueries({ queryKey: ['reviews', variables.product] });
-		}
-	});
+export const updateOrderStatus = async (id: string, status: Order['status']): Promise<Order> => {
+	const response = await api.patch(`${API_ENDPOINTS.ORDERS}/${id}/status`, { status });
+	return response.data;
+};
+
+export const getMyOrders = async () => {
+	const response = await api.get(`${API_ENDPOINTS.ORDERS}/my`);
+	return response.data;
+};
+
+export const getProductReviews = async (productId: string) => {
+	const response = await api.get(`${API_ENDPOINTS.REVIEWS}/${productId}`);
+	return response.data;
+};
+
+export const addReview = async (data: { product: string; rating: number; comment: string }) => {
+	const response = await api.post(API_ENDPOINTS.REVIEWS, data);
+	return response.data;
+};
+
+export const getProductRating = async (productId: string) => {
+	const response = await api.get(`${API_ENDPOINTS.REVIEWS}/${productId}/rating`);
+	return response.data;
 }; 
