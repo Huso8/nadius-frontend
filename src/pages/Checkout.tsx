@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Paper, Typography, Box, Button, TextField, Grid, Alert, CircularProgress } from '@mui/material';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { createOrder } from '../services/api';
+import { useCreateOrder } from '../services/api';
 import { OrderItem } from '../types';
 
 interface OrderFormData {
@@ -25,6 +25,7 @@ const Checkout: React.FC = () => {
 		address: '',
 		comment: ''
 	});
+	const createOrderMutation = useCreateOrder();
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -46,14 +47,12 @@ const Checkout: React.FC = () => {
 		}
 
 		try {
-			const orderItems: OrderItem[] = items.map(item => ({
-				product: item.product._id,
-				quantity: item.quantity,
-				price: item.product.price
-			}));
-
-			await createOrder({
-				items: orderItems,
+			await createOrderMutation.mutateAsync({
+				items: items.map(item => ({
+					product: item.product._id,
+					quantity: item.quantity,
+					price: item.product.price
+				})),
 				totalAmount: total,
 				...formData
 			});

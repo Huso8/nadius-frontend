@@ -1,41 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Paper, Typography, Box, Button, Grid, Rating, TextField, Alert, CircularProgress } from '@mui/material';
-import { getProduct, getProductReviews, addReview } from '../services/api';
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Container, Grid, Typography, Button, Box, Rating, TextField, Alert } from '@mui/material';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+import { useProduct, useReviews, useAddReview } from '../services/api';
+import OptimizedImage from '../components/OptimizedImage';
 
 const ProductDetails: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
-	const navigate = useNavigate();
 	const { addToCart } = useCart();
-	const { isAuthenticated } = useAuth();
-	const [product, setProduct] = useState<any>(null);
-	const [reviews, setReviews] = useState<any[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [rating, setRating] = useState<number | null>(null);
 	const [comment, setComment] = useState('');
-	const [reviewError, setReviewError] = useState<string | null>(null);
-	const [reviewSuccess, setReviewSuccess] = useState(false);
 
-	useEffect(() => {
-		const fetchProduct = async () => {
-			try {
-				if (!id) return;
-				const data = await getProduct(id);
-				setProduct(data);
-				const reviewsData = await getProductReviews(id);
-				setReviews(reviewsData);
-			} catch (err: any) {
-				setError(err.response?.data?.message || 'Ошибка при загрузке продукта');
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchProduct();
-	}, [id]);
+	const { data: product, isLoading: productLoading, error: productError } = useProduct(id || '');
+	const { data: reviews = [], isLoading: reviewsLoading } = useReviews(id || '');
+	const addReviewMutation = useAddReview();
 
 	const handleAddToCart = () => {
 		if (product) {
@@ -43,138 +21,138 @@ const ProductDetails: React.FC = () => {
 		}
 	};
 
-	const handleAddReview = async () => {
-		if (!isAuthenticated) {
-			setReviewError('Для добавления отзыва необходимо войти в аккаунт');
-			return;
-		}
-
-		if (!rating) {
-			setReviewError('Поставьте оценку');
-			return;
-		}
-
-		try {
-			await addReview({ product: id!, rating, comment });
-			setReviewSuccess(true);
-			setRating(null);
-			setComment('');
-			setReviewError(null);
-			const reviewsData = await getProductReviews(id!);
-			setReviews(reviewsData);
-		} catch (err: any) {
-			setReviewError(err.response?.data?.message || 'Ошибка при добавлении отзыва');
+	const handleReviewSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (rating && comment && id) {
+			try {
+				await addReviewMutation.mutateAsync({
+					product: id,
+					rating,
+					comment
+				});
+				setRating(null);
+				setComment('');
+			} catch (error) {
+				console.error('Error adding review:', error);
+			}
 		}
 	};
 
-	if (loading) {
+	if (productLoading || reviewsLoading) {
 		return (
-			<Container sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-				<CircularProgress />
+			<Container>
+				<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+					<Typography>Загрузка...</Typography>
+				</Box>
 			</Container>
 		);
 	}
 
-	if (error || !product) {
+	if (productError || !product) {
 		return (
-			<Container sx={{ py: 8 }}>
-				<Alert severity="error">{error || 'Продукт не найден'}</Alert>
+			<Container>
+				<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+					<Typography color="error">Ошибка при загрузке продукта</Typography>
+				</Box>
 			</Container>
 		);
 	}
+
+	const averageRating = reviews.length > 0
+		? reviews.reduce((acc: number, review: { rating: number }) => acc + review.rating, 0) / reviews.length
+		: 0;
 
 	return (
-		<Container maxWidth="lg" sx={{ py: 8 }}>
+		<Container sx={{ py: 4 }}>
 			<Grid container spacing={4}>
 				<Grid item xs={12} md={6}>
-					<Paper elevation={3} sx={{ p: 3, height: '100%' }}>
-						<img
-							src={product.image}
-							alt={product.name}
-							style={{
-								width: '100%',
-								height: 'auto',
-								borderRadius: '8px',
-								marginBottom: '16px'
-							}}
-						/>
-					</Paper>
+					<OptimizedImage
+						src={product.image}
+						alt={product.name}
+						style={{
+							width: '100%',
+							height: 'auto',
+							borderRadius: '8px',
+						}}
+					/>
 				</Grid>
 				<Grid item xs={12} md={6}>
-					<Paper elevation={3} sx={{ p: 3 }}>
-						<Typography variant="h4" component="h1" gutterBottom>
-							{product.name}
+					<Typography variant="h4" component="h1" gutterBottom>
+						{product.name}
+					</Typography>
+					<Typography variant="body1" paragraph>
+						{product.description}
+					</Typography>
+					<Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+						<Rating value={averageRating} readOnly precision={0.5} />
+						<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+							({reviews.length} отзывов)
 						</Typography>
-						<Typography variant="h5" color="primary" gutterBottom>
-							{product.price} ₽
-						</Typography>
-						<Typography variant="body1" paragraph>
-							{product.description}
-						</Typography>
-						<Button
-							variant="contained"
-							size="large"
-							onClick={handleAddToCart}
-							sx={{ mt: 2 }}
-						>
-							Добавить в корзину
-						</Button>
-					</Paper>
+					</Box>
+					<Typography variant="h5" color="primary" gutterBottom>
+						{product.price} ₽
+					</Typography>
+					<Button
+						variant="contained"
+						color="primary"
+						size="large"
+						onClick={handleAddToCart}
+						sx={{ mt: 2 }}
+					>
+						В корзину
+					</Button>
 
-					<Paper elevation={3} sx={{ p: 3, mt: 4 }}>
+					<Box sx={{ mt: 4 }}>
 						<Typography variant="h6" gutterBottom>
-							Отзывы
+							Оставить отзыв
 						</Typography>
-						{reviewError && <Alert severity="error" sx={{ mb: 2 }}>{reviewError}</Alert>}
-						{reviewSuccess && <Alert severity="success" sx={{ mb: 2 }}>Отзыв успешно добавлен</Alert>}
-
-						<Box sx={{ mb: 3 }}>
-							<Typography variant="subtitle1" gutterBottom>
-								Добавить отзыв
-							</Typography>
+						<form onSubmit={handleReviewSubmit}>
 							<Rating
 								value={rating}
-								onChange={(_, newValue) => setRating(newValue)}
+								onChange={(_, value) => setRating(value)}
 								sx={{ mb: 2 }}
 							/>
 							<TextField
 								fullWidth
 								multiline
-								rows={3}
-								label="Комментарий"
+								rows={4}
+								label="Ваш отзыв"
 								value={comment}
 								onChange={(e) => setComment(e.target.value)}
 								sx={{ mb: 2 }}
 							/>
 							<Button
+								type="submit"
 								variant="contained"
-								onClick={handleAddReview}
-								disabled={!rating}
+								disabled={!rating || !comment}
 							>
 								Отправить отзыв
 							</Button>
-						</Box>
+						</form>
+					</Box>
 
-						{reviews.length > 0 ? (
-							reviews.map((review) => (
-								<Box key={review._id} sx={{ mb: 2, pb: 2, borderBottom: '1px solid #eee' }}>
-									<Rating value={review.rating} readOnly sx={{ mb: 1 }} />
-									<Typography variant="body2" color="text.secondary">
-										{new Date(review.createdAt).toLocaleDateString('ru-RU')}
-									</Typography>
-									{review.comment && (
-										<Typography variant="body1" sx={{ mt: 1 }}>
-											{review.comment}
+					<Box sx={{ mt: 4 }}>
+						<Typography variant="h6" gutterBottom>
+							Отзывы
+						</Typography>
+						{reviews.length === 0 ? (
+							<Typography color="text.secondary">
+								Пока нет отзывов. Будьте первым!
+							</Typography>
+						) : (
+							reviews.map((review: { _id: string; rating: number; comment: string; user?: { name: string } }) => (
+								<Box key={review._id} sx={{ mb: 2 }}>
+									<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+										<Rating value={review.rating} readOnly size="small" />
+										<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+											{review.user?.name || 'Пользователь'}
 										</Typography>
-									)}
+									</Box>
+									<Typography variant="body1">{review.comment}</Typography>
 								</Box>
 							))
-						) : (
-							<Typography color="text.secondary">
-								Пока нет отзывов
-							</Typography>
 						)}
-					</Paper>
+					</Box>
 				</Grid>
 			</Grid>
 		</Container>

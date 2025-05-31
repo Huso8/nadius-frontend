@@ -33,7 +33,7 @@ const Header: React.FC = () => {
 				setFilteredProducts([]);
 				return;
 			}
-			const filtered = products.filter(product =>
+			const filtered = products.filter((product: { name: string }) =>
 				product.name.toLowerCase().includes(query.toLowerCase())
 			);
 			setFilteredProducts(filtered.slice(0, 5)); // Ограничиваем количество результатов
