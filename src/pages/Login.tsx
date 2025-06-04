@@ -1,78 +1,83 @@
 import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { Container, Paper, Typography, TextField, Button, Box, Link, Alert } from '@mui/material';
+import { TextField, Button, Typography, Alert, Box } from '@mui/material';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ROUTES } from '../constants/navigation';
+import FormContainer from '../components/common/FormContainer';
+import LoadingPage from '../components/common/LoadingPage';
+import ErrorPage from '../components/common/ErrorPage';
 
 const Login: React.FC = () => {
-	const navigate = useNavigate();
-	const { login } = useAuth();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const [error, setError] = useState<string | null>(null);
-	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState('');
+	const { login, isLoading } = useAuth();
+	const navigate = useNavigate();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setError(null);
-		setLoading(true);
-
 		try {
 			await login(email, password);
-			navigate('/profile');
-		} catch (err: any) {
-			setError(err.response?.data?.message || 'Ошибка при входе');
-		} finally {
-			setLoading(false);
+			navigate(ROUTES.HOME);
+		} catch (err) {
+			setError('Неверный email или пароль');
 		}
 	};
 
+	if (isLoading) {
+		return <LoadingPage />;
+	}
+
 	return (
-		<Container maxWidth="sm" sx={{ py: 8 }}>
-			<Paper elevation={3} sx={{ p: 4 }}>
-				<Typography variant="h4" component="h1" gutterBottom align="center">
-					Вход в аккаунт
-				</Typography>
-				{error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-				<Box component="form" onSubmit={handleSubmit}>
-					<TextField
-						fullWidth
-						label="Email"
-						type="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						margin="normal"
-						required
-					/>
-					<TextField
-						fullWidth
-						label="Пароль"
-						type="password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						margin="normal"
-						required
-					/>
-					<Button
-						fullWidth
-						type="submit"
-						variant="contained"
-						size="large"
-						sx={{ mt: 3 }}
-						disabled={loading}
-					>
-						{loading ? 'Вход...' : 'Войти'}
-					</Button>
-					<Box sx={{ mt: 2, textAlign: 'center' }}>
-						<Typography variant="body2">
-							Нет аккаунта?{' '}
-							<Link component={RouterLink} to="/register">
-								Зарегистрироваться
-							</Link>
-						</Typography>
-					</Box>
+		<FormContainer>
+			<Typography variant="h4" component="h1" gutterBottom align="center">
+				Вход
+			</Typography>
+			{error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+			<form onSubmit={handleSubmit}>
+				<TextField
+					margin="normal"
+					required
+					fullWidth
+					id="email"
+					label="Email"
+					name="email"
+					autoComplete="email"
+					autoFocus
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+				/>
+				<TextField
+					margin="normal"
+					required
+					fullWidth
+					name="password"
+					label="Пароль"
+					type="password"
+					id="password"
+					autoComplete="current-password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+				/>
+				<Button
+					type="submit"
+					fullWidth
+					variant="contained"
+					color="primary"
+					sx={{ mt: 3 }}
+				>
+					Войти
+				</Button>
+				<Box sx={{ mt: 2, textAlign: 'center' }}>
+					<Typography variant="body2">
+						Нет аккаунта?{' '}
+						<RouterLink to={ROUTES.REGISTER}>
+							Зарегистрироваться
+						</RouterLink>
+					</Typography>
 				</Box>
-			</Paper>
-		</Container>
+			</form>
+		</FormContainer>
 	);
 };
 

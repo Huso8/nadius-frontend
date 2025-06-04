@@ -107,12 +107,14 @@ export const useAuth = () => {
 		register: useMutation({
 			mutationFn: async (userData: { email: string; password: string; name: string }) => {
 				const response = await api.post(`${API_ENDPOINTS.AUTH}/register`, userData);
+				localStorage.setItem('token', response.data.token);
 				return response.data;
 			}
 		}),
 		login: useMutation({
 			mutationFn: async (credentials: { email: string; password: string }) => {
 				const response = await api.post(`${API_ENDPOINTS.AUTH}/login`, credentials);
+				localStorage.setItem('token', response.data.token);
 				return response.data;
 			},
 			onSuccess: () => {

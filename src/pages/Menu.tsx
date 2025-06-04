@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Grid, Typography, Box } from '@mui/material';
-import ProductCard from '../components/ProductCard';
+import ProductCard from '../components/common/ProductCard';
 import { useProducts } from '../services/api';
 import { Product } from '../types';
 

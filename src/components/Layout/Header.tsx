@@ -1,192 +1,142 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { AppBar, Toolbar, Typography, Button, Badge, Box, IconButton, InputBase, Paper, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import {
+	AppBar,
+	Toolbar,
+	Typography,
+	Button,
+	Badge,
+	Box,
+	IconButton,
+	Fab,
+	CircularProgress
+} from '@mui/material';
+import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import SearchIcon from '@mui/icons-material/Search';
+import MenuIcon from '@mui/icons-material/Menu';
 import { useCart } from '../../context/CartContext';
-import Fab from '@mui/material/Fab';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import { useAuth } from '../../context/AuthContext';
 import { useProducts } from '../../services/api';
-import { Product } from '../../types';
-import debounce from 'lodash/debounce';
 import logo from '../../logo.png';
+import SearchBar from './Header/SearchBar';
+import Navigation from './Header/Navigation';
+import AuthMenu from './Header/AuthMenu';
+import MobileMenu from './Header/MobileMenu';
+import { ROUTES } from '../../constants/navigation';
+import { COLORS, BREAKPOINTS, SPACING } from '../../constants/theme';
 
 const Header: React.FC = () => {
 	const { items } = useCart();
 	const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-	const [searchOpen, setSearchOpen] = useState(false);
-	const [search, setSearch] = useState('');
-	const [focused, setFocused] = useState(false);
-	const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const navigate = useNavigate();
+	const location = useLocation();
 	const theme = useTheme();
-	const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-	const { isAuthenticated, logout } = useAuth();
+	const isMobile = useMediaQuery(theme.breakpoints.down(BREAKPOINTS.MOBILE));
 	const { data: products = [] } = useProducts();
 
-	// Оптимизированная функция фильтрации с debounce
-	const debouncedFilter = useCallback(
-		debounce((query: string) => {
-			if (!query.trim()) {
-				setFilteredProducts([]);
-				return;
-			}
-			const filtered = products.filter((product: { name: string }) =>
-				product.name.toLowerCase().includes(query.toLowerCase())
-			);
-			setFilteredProducts(filtered.slice(0, 5)); // Ограничиваем количество результатов
-		}, 300),
-		[products]
-	);
+	// Сброс индикатора загрузки при изменении маршрута
+	React.useEffect(() => {
+		setIsLoading(false);
+	}, [location]);
 
-	// Обработчик изменения поискового запроса
-	useEffect(() => {
-		debouncedFilter(search);
-		return () => {
-			debouncedFilter.cancel();
-		};
-	}, [search, debouncedFilter]);
-
-	const handleSearchSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		if (search.trim()) {
-			navigate(`/search?q=${encodeURIComponent(search.trim())}`);
-			setSearchOpen(false);
-			setSearch('');
-		}
-	};
-
-	const handleSelectProduct = (productName: string) => {
-		setSearch(productName);
-		navigate(`/search?q=${encodeURIComponent(productName)}`);
-		setSearchOpen(false);
-	};
-
-	const handleLogout = () => {
-		logout();
-		navigate('/');
+	const handleMobileMenuToggle = () => {
+		setMobileMenuOpen(!mobileMenuOpen);
 	};
 
 	return (
 		<>
-			<AppBar position="static" sx={{ background: 'linear-gradient(to right, #8b6d5c, #a3d6c4)' }}>
-				<Toolbar>
-					<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-						<img src={logo} alt="Nadius" style={{ width: '60px', height: '60px' }} />
+			<AppBar position="static" sx={{ background: COLORS.BACKGROUND.GRADIENT }}>
+				<Toolbar sx={{
+					minHeight: {
+						xs: SPACING.HEADER.HEIGHT.MOBILE,
+						[BREAKPOINTS.MOBILE]: SPACING.HEADER.HEIGHT.DESKTOP
+					},
+					px: { xs: 1, [BREAKPOINTS.MOBILE]: 2 },
+					gap: { xs: 0.5, [BREAKPOINTS.MOBILE]: 1 }
+				}}>
+					<Box sx={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: 2,
+						'& img': {
+							width: { xs: '40px', [BREAKPOINTS.MOBILE]: '60px' },
+							height: { xs: '40px', [BREAKPOINTS.MOBILE]: '60px' },
+							objectFit: 'contain'
+						}
+					}}>
+						<img src={logo} alt="Nadius" />
 					</Box>
 					<Typography
 						variant="h6"
 						component={RouterLink}
-						to="/"
+						to={ROUTES.HOME}
 						sx={{
 							flexGrow: 1,
 							textDecoration: 'none',
 							color: 'white',
 							fontFamily: 'JetBrains Mono',
-							fontSize: '30px',
+							fontSize: { xs: '20px', [BREAKPOINTS.MOBILE]: '30px' },
+							mx: { xs: 1, [BREAKPOINTS.MOBILE]: 2 }
 						}}
 					>
 						{' Nadius '}
 					</Typography>
-					<Box sx={{ display: 'flex', gap: 2, alignItems: 'center', position: 'relative' }}>
-						{!searchOpen && (
-							<IconButton color="inherit" onClick={() => setSearchOpen(true)}>
-								<SearchIcon />
-							</IconButton>
-						)}
-						{searchOpen && (
-							<Box sx={{ position: 'relative' }}>
-								<Paper component="form" onSubmit={handleSearchSubmit} sx={{ ml: 1, p: '2px 8px', display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.95)', minWidth: 220 }}>
-									<InputBase
-										sx={{ ml: 1, flex: 1 }}
-										placeholder="Поиск..."
-										value={search}
-										onChange={e => setSearch(e.target.value)}
-										onFocus={() => setFocused(true)}
-										onBlur={() => setTimeout(() => setFocused(false), 150)}
-										autoFocus
-									/>
-									<IconButton type="submit" sx={{ p: 1 }}>
-										<SearchIcon />
-									</IconButton>
-								</Paper>
-								{(focused || search) && filteredProducts.length > 0 && (
-									<Paper sx={{ position: 'absolute', left: 0, right: 0, zIndex: 10, mt: 0.5, maxHeight: 300, overflowY: 'auto' }}>
-										<List>
-											{filteredProducts.map(product => (
-												<ListItem key={product._id} disablePadding>
-													<ListItemButton onMouseDown={() => handleSelectProduct(product.name)}>
-														<ListItemText primary={product.name} />
-													</ListItemButton>
-												</ListItem>
-											))}
-										</List>
-									</Paper>
-								)}
-							</Box>
-						)}
-						<Button color="inherit" component={RouterLink} to="/" >Главная</Button>
-						<Button color="inherit" component={RouterLink} to="/menu" >Меню</Button>
-						<Button color="inherit" component={RouterLink} to="/checkout" >Заказать</Button>
-						<Button color="inherit" component={RouterLink} to="/contacts" >Контакты</Button>
-						{isAuthenticated ? (
-							<>
-								<Button
-									color="inherit"
-									component={RouterLink}
-									to="/profile"
-								>
-									Профиль
-								</Button>
-								<Button
-									color="inherit"
-									onClick={handleLogout}
-								>
-									Выйти
-								</Button>
-							</>
-						) : (
-							<>
-								<Button
-									color="inherit"
-									component={RouterLink}
-									to="/login"
-								>
-									Войти
-								</Button>
-								<Button
-									color="inherit"
-									component={RouterLink}
-									to="/register"
-								>
-									Регистрация
-								</Button>
-							</>
-						)}
-						<Button
-							color="inherit"
-							component={RouterLink}
-							to="/recipes"
-						>
-							Рецепты
-						</Button>
-						<Button
-							color="inherit"
-							component={RouterLink}
-							to="/cart"
-							startIcon={
-								<Badge badgeContent={totalItems} color="error">
-									<ShoppingCartIcon />
-								</Badge>
-							}
-						>
-							Корзина
-						</Button>
-					</Box>
+
+					<Navigation />
+
+					<Button
+						color="inherit"
+						component={RouterLink}
+						to={ROUTES.CART}
+						startIcon={
+							<Badge badgeContent={totalItems} color="error">
+								<ShoppingCartIcon />
+							</Badge>
+						}
+						sx={{
+							display: { xs: 'none', [BREAKPOINTS.MOBILE]: 'flex' },
+							mx: 1
+						}}
+					>
+						Корзина
+					</Button>
+
+					<SearchBar products={products} />
+
+					<AuthMenu />
+
+					<IconButton
+						color="inherit"
+						onClick={handleMobileMenuToggle}
+						sx={{ display: { xs: 'flex', [BREAKPOINTS.MOBILE]: 'none' } }}
+					>
+						<MenuIcon />
+					</IconButton>
 				</Toolbar>
 			</AppBar>
+
+			<MobileMenu open={mobileMenuOpen} onClose={handleMobileMenuToggle} />
+
+			{isLoading && (
+				<Box
+					sx={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						zIndex: 9999,
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						height: '4px',
+					}}
+				>
+					<CircularProgress size={20} thickness={4} />
+				</Box>
+			)}
+
 			{isMobile && (
 				<Fab
 					color="primary"
@@ -197,7 +147,7 @@ const Header: React.FC = () => {
 						zIndex: 1201,
 						boxShadow: '0 4px 24px rgba(139,109,92,0.18)',
 					}}
-					onClick={() => navigate('/cart')}
+					onClick={() => navigate(ROUTES.CART)}
 				>
 					<Badge badgeContent={totalItems} color="error">
 						<ShoppingCartIcon />

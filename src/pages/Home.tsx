@@ -3,7 +3,7 @@ import { Container, Typography, Box, Button, Grid, Card, CardContent, CardMedia 
 import { Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { styled } from '@mui/material/styles';
-import OptimizedImage from '../components/OptimizedImage';
+import OptimizedImage from '../components/common/OptimizedImage';
 
 const MotionTypography = motion(Typography);
 const MotionButton = motion(Button);

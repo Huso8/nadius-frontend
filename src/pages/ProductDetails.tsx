@@ -1,40 +1,22 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Grid, Typography, Button, Box, Rating, TextField, Alert } from '@mui/material';
+import { Container, Grid, Typography, Button, Box, Rating } from '@mui/material';
 import { useCart } from '../context/CartContext';
-import { useProduct, useReviews, useAddReview } from '../services/api';
-import OptimizedImage from '../components/OptimizedImage';
+import { useProduct, useReviews } from '../services/api';
+import { ROUTES } from '../constants/navigation';
+import OptimizedImage from '../components/common/OptimizedImage';
+import ReviewForm from '../components/ReviewForm';
 
 const ProductDetails: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
 	const { addToCart } = useCart();
-	const [rating, setRating] = useState<number | null>(null);
-	const [comment, setComment] = useState('');
 
 	const { data: product, isLoading: productLoading, error: productError } = useProduct(id || '');
 	const { data: reviews = [], isLoading: reviewsLoading } = useReviews(id || '');
-	const addReviewMutation = useAddReview();
 
 	const handleAddToCart = () => {
 		if (product) {
 			addToCart(product);
-		}
-	};
-
-	const handleReviewSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		if (rating && comment && id) {
-			try {
-				await addReviewMutation.mutateAsync({
-					product: id,
-					rating,
-					comment
-				});
-				setRating(null);
-				setComment('');
-			} catch (error) {
-				console.error('Error adding review:', error);
-			}
 		}
 	};
 
@@ -106,29 +88,7 @@ const ProductDetails: React.FC = () => {
 						<Typography variant="h6" gutterBottom>
 							Оставить отзыв
 						</Typography>
-						<form onSubmit={handleReviewSubmit}>
-							<Rating
-								value={rating}
-								onChange={(_, value) => setRating(value)}
-								sx={{ mb: 2 }}
-							/>
-							<TextField
-								fullWidth
-								multiline
-								rows={4}
-								label="Ваш отзыв"
-								value={comment}
-								onChange={(e) => setComment(e.target.value)}
-								sx={{ mb: 2 }}
-							/>
-							<Button
-								type="submit"
-								variant="contained"
-								disabled={!rating || !comment}
-							>
-								Отправить отзыв
-							</Button>
-						</form>
+						<ReviewForm productId={product._id} />
 					</Box>
 
 					<Box sx={{ mt: 4 }}>

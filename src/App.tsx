@@ -20,7 +20,7 @@ const Profile = React.lazy(() => import('./pages/Profile'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
 const Contacts = React.lazy(() => import('./pages/Contacts'));
-const Recipes = React.lazy(() => import('./pages/Recipes'));
+const Search = React.lazy(() => import('./pages/Search'));
 
 // Компонент загрузки
 const LoadingFallback = () => (
@@ -43,7 +43,7 @@ function App() {
 				<CssBaseline />
 				<AuthProvider>
 					<CartProvider>
-						<Router>
+						<Router future={{ v7_startTransition: true }}>
 							<Layout>
 								<Suspense fallback={<LoadingFallback />}>
 									<Routes>
@@ -56,7 +56,7 @@ function App() {
 										<Route path="/login" element={<Login />} />
 										<Route path="/register" element={<Register />} />
 										<Route path="/contacts" element={<Contacts />} />
-										<Route path="/recipes" element={<Recipes />} />
+										<Route path="/search" element={<Search />} />
 									</Routes>
 								</Suspense>
 							</Layout>
