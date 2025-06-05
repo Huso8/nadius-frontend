@@ -5,7 +5,7 @@ import axios from 'axios';
 import { User } from '../types';
 import { ApiResponse } from '../services/api';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 interface AuthContextType {
 	user: User | null;

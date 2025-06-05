@@ -9,7 +9,7 @@ import { formatPhoneNumber } from '../utils/format';
 import { debounce } from 'lodash';
 import InputMask from 'react-input-mask';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL;
 
 interface OrderFormData {
 	name: string;
