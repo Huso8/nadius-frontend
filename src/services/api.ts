@@ -17,10 +17,10 @@ export interface ApiError {
 const API_URL = process.env.REACT_APP_API_URL;
 
 const API_ENDPOINTS = {
-	PRODUCTS: `/products`,
-	ORDERS: `/orders`,
-	AUTH: `/auth`,
-	REVIEWS: `/reviews`,
+	PRODUCTS: `api/products`,
+	ORDERS: `api/orders`,
+	AUTH: `api/auth`,
+	REVIEWS: `api/reviews`,
 } as const;
 
 const api = axios.create({
