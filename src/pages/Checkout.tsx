@@ -1,31 +1,146 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Paper, Typography, Box, Button, TextField, Grid, Alert, CircularProgress } from '@mui/material';
+import { Container, Paper, Typography, Box, Button, TextField, Grid, Alert, CircularProgress, Autocomplete, ListItem, ListItemText, Divider } from '@mui/material';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCreateOrder } from '../services/api';
-import { OrderItem } from '../types';
+import { OrderItem, CreateOrderData, Coordinates, CartItem } from '../types';
+import { formatPhoneNumber } from '../utils/format';
+import { debounce } from 'lodash';
+import InputMask from 'react-input-mask';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 interface OrderFormData {
 	name: string;
+	email: string;
 	phone: string;
 	address: string;
 	comment: string;
 }
 
+interface FormErrors {
+	name?: string;
+	email?: string;
+	phone?: string;
+	address?: string;
+}
+
+interface AddressSuggestion {
+	label: string;
+	description?: string;
+	coordinates: {
+		lat: string;
+		lon: string;
+	};
+}
+
+type OrderStatus = 'pending' | 'processing' | 'completed' | 'cancelled';
+
+const YANDEX_API_KEY = '18f073a4-54af-4678-9260-bf48dd2a0d69';
+
 const Checkout: React.FC = () => {
 	const navigate = useNavigate();
 	const { items, total, clearCart } = useCart();
-	const { isAuthenticated } = useAuth();
+	const { isAuthenticated, user } = useAuth();
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [errors, setErrors] = useState<FormErrors>({});
 	const [formData, setFormData] = useState<OrderFormData>({
-		name: '',
-		phone: '',
-		address: '',
+		name: user?.name || '',
+		email: user?.email || '',
+		phone: user?.phone || '',
+		address: user?.address || '',
 		comment: ''
 	});
+	const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
+	const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+	const [selectedAddress, setSelectedAddress] = useState<AddressSuggestion | null>(null);
 	const createOrderMutation = useCreateOrder();
+	const formRef = useRef<HTMLFormElement>(null);
+	const phoneInputRef = useRef<HTMLInputElement>(null);
+	const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	useEffect(() => {
+		if (user) {
+			setFormData(prev => ({
+				...prev,
+				name: user.name || '',
+				email: user.email || '',
+				phone: user.phone || '',
+				address: user.address || ''
+			}));
+		}
+	}, [user]);
+
+	const fetchAddressSuggestions = async (query: string) => {
+		if (query.length < 3) {
+			setAddressSuggestions([]);
+			return;
+		}
+
+		try {
+			setLoading(true);
+			const response = await fetch(`${API_URL}/address/suggest?query=${encodeURIComponent(query)}`);
+
+			if (!response.ok) {
+				throw new Error('Failed to fetch address suggestions');
+			}
+
+			const data = await response.json();
+
+			if (data.results) {
+				setAddressSuggestions(data.results.map((item: any) => ({
+					label: item.title,
+					description: item.subtitle,
+					coordinates: {
+						lat: item.lat.toString(),
+						lon: item.lon.toString()
+					}
+				})));
+			} else {
+				setAddressSuggestions([]);
+			}
+		} catch (error) {
+			console.error('Ошибка при получении адресов:', error);
+			setAddressSuggestions([]);
+			setError('Не удалось получить подсказки адресов. Пожалуйста, введите адрес вручную.');
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const debouncedFetchAddresses = debounce(fetchAddressSuggestions, 300);
+
+	const validateForm = () => {
+		const newErrors: FormErrors = {};
+
+		if (!formData.name.trim()) {
+			newErrors.name = 'Введите имя';
+		}
+
+		if (!formData.email.trim()) {
+			newErrors.email = 'Введите email';
+		} else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+			newErrors.email = 'Введите корректный email';
+		}
+
+		if (!formData.phone.trim()) {
+			newErrors.phone = 'Введите телефон';
+		} else if (!/^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(formData.phone)) {
+			newErrors.phone = 'Введите корректный номер телефона';
+		}
+
+		if (!formData.address.trim()) {
+			newErrors.address = 'Введите адрес доставки';
+		} else if (!selectedAddress) {
+			newErrors.address = 'Выберите адрес из списка';
+		}
+
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -33,35 +148,88 @@ const Checkout: React.FC = () => {
 			...prev,
 			[name]: value
 		}));
+		setErrors(prev => ({ ...prev, [name]: undefined }));
+
+		if (name === 'address') {
+			debouncedFetchAddresses(value);
+		}
+	};
+
+	const handleAddressInputChange = (event: React.SyntheticEvent, value: string) => {
+		setFormData(prev => ({
+			...prev,
+			address: value
+		}));
+
+		// Очищаем выбранный адрес при вводе
+		setSelectedAddress(null);
+
+		if (value.length >= 3) {
+			debouncedFetchAddresses(value);
+		} else {
+			setAddressSuggestions([]);
+		}
+	};
+
+	const handleAddressSelect = (event: React.SyntheticEvent, value: string | AddressSuggestion | null) => {
+		if (value && typeof value !== 'string') {
+			setSelectedAddress(value);
+			setFormData(prev => ({
+				...prev,
+				address: value.label
+			}));
+			setAddressSuggestions([]); // Очищаем список после выбора
+		}
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setError(null);
-		setLoading(true);
 
-		if (!isAuthenticated) {
-			setError('Для оформления заказа необходимо войти в аккаунт');
-			setLoading(false);
+		if (!validateForm()) {
 			return;
 		}
 
+		setIsSubmitting(true);
+		setError(null);
+
 		try {
-			await createOrderMutation.mutateAsync({
-				items: items.map(item => ({
-					product: item.product._id,
-					quantity: item.quantity,
-					price: item.product.price
-				})),
+			const orderItems = items.map((item: CartItem) => ({
+				product: item.product._id,
+				quantity: item.quantity,
+				price: item.product.price
+			}));
+
+			const orderData: CreateOrderData = {
+				items: orderItems,
 				totalAmount: total,
-				...formData
-			});
+				deliveryAddress: {
+					address: formData.address,
+					coordinates: selectedAddress?.coordinates ? {
+						lat: Number(selectedAddress.coordinates.lat),
+						lon: Number(selectedAddress.coordinates.lon)
+					} : null
+				},
+				contactInfo: {
+					name: formData.name,
+					email: formData.email,
+					phone: formData.phone
+				},
+				comment: formData.comment
+			};
+
+			const response = await createOrderMutation.mutateAsync(orderData);
+
 			clearCart();
-			navigate('/profile');
-		} catch (err: any) {
-			setError(err.response?.data?.message || 'Ошибка при оформлении заказа');
+			navigate(`/orders/${response._id}`);
+		} catch (err) {
+			console.error('Ошибка при создании заказа:', err);
+			if (err instanceof Error) {
+				setError(err.message);
+			} else {
+				setError('Произошла неизвестная ошибка при создании заказа');
+			}
 		} finally {
-			setLoading(false);
+			setIsSubmitting(false);
 		}
 	};
 
@@ -91,7 +259,7 @@ const Checkout: React.FC = () => {
 					Оформление заказа
 				</Typography>
 				{error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-				<Box component="form" onSubmit={handleSubmit}>
+				<Box component="form" ref={formRef} onSubmit={handleSubmit}>
 					<Grid container spacing={3}>
 						<Grid item xs={12}>
 							<TextField
@@ -101,28 +269,81 @@ const Checkout: React.FC = () => {
 								value={formData.name}
 								onChange={handleChange}
 								required
+								error={!!errors.name}
+								helperText={errors.name}
 							/>
 						</Grid>
 						<Grid item xs={12}>
 							<TextField
 								fullWidth
-								label="Телефон"
-								name="phone"
+								label="Email"
+								name="email"
+								value={formData.email}
+								onChange={handleChange}
+								required
+								error={!!errors.email}
+								helperText={errors.email}
+							/>
+						</Grid>
+						<Grid item xs={12}>
+							<InputMask
+								mask="+7 (999) 999-99-99"
 								value={formData.phone}
 								onChange={handleChange}
-								required
-							/>
+							>
+								{(inputProps: any) => (
+									<TextField
+										{...inputProps}
+										fullWidth
+										label="Телефон"
+										name="phone"
+										required
+										error={!!errors.phone}
+										helperText={errors.phone}
+									/>
+								)}
+							</InputMask>
 						</Grid>
 						<Grid item xs={12}>
-							<TextField
-								fullWidth
-								label="Адрес доставки"
-								name="address"
+							<Autocomplete
+								freeSolo
+								options={addressSuggestions}
+								getOptionLabel={(option) =>
+									typeof option === 'string' ? option : option.label
+								}
 								value={formData.address}
-								onChange={handleChange}
-								required
-								multiline
-								rows={2}
+								onChange={handleAddressSelect}
+								onInputChange={handleAddressInputChange}
+								loading={isLoadingSuggestions}
+								filterOptions={(x) => x} // Отключаем встроенную фильтрацию
+								renderInput={(params) => (
+									<TextField
+										{...params}
+										label="Адрес доставки"
+										name="address"
+										required
+										fullWidth
+										error={!!errors.address}
+										helperText={errors.address}
+										InputProps={{
+											...params.InputProps,
+											endAdornment: (
+												<>
+													{isLoadingSuggestions ? <CircularProgress color="inherit" size={20} /> : null}
+													{params.InputProps.endAdornment}
+												</>
+											),
+										}}
+									/>
+								)}
+								renderOption={(props, option) => (
+									<ListItem {...props} key={`${option.label}-${option.coordinates.lat}-${option.coordinates.lon}`}>
+										<ListItemText
+											primary={option.label}
+											secondary={option.description}
+										/>
+									</ListItem>
+								)}
 							/>
 						</Grid>
 						<Grid item xs={12}>
@@ -134,6 +355,7 @@ const Checkout: React.FC = () => {
 								onChange={handleChange}
 								multiline
 								rows={3}
+								placeholder="Например: позвонить за час до доставки, не звонить в дверь и т.д."
 							/>
 						</Grid>
 					</Grid>

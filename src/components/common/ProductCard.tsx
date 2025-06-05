@@ -15,7 +15,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 	const navigate = useNavigate();
 	const { addToCart } = useCart();
-	const { data: reviews = [] } = useReviews(product._id);
+	const { data: reviews = [] } = useReviews(product._id ? String(product._id) : '');
 
 	const handleAddToCart = () => {
 		addToCart(product);
@@ -24,6 +24,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 	const averageRating = reviews.length > 0
 		? reviews.reduce((acc: number, review: { rating: number }) => acc + review.rating, 0) / reviews.length
 		: 0;
+
+	const productId = String(product._id);
 
 	return (
 		<Card sx={{
@@ -38,7 +40,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 				height="200"
 				image={product.image}
 				alt={product.name}
-				onClick={() => navigate(ROUTES.PRODUCT(product._id))}
+				onClick={() => navigate(ROUTES.PRODUCT(productId))}
 				sx={{ cursor: 'pointer' }}
 			/>
 			<CardContent sx={{
@@ -84,7 +86,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 					<Button
 						variant="outlined"
 						color="primary"
-						onClick={() => navigate(ROUTES.PRODUCT(product._id))}
+						onClick={() => navigate(ROUTES.PRODUCT(productId))}
 						fullWidth
 					>
 						Отзывы

@@ -45,33 +45,31 @@ const Cart: React.FC = () => {
 							<ListItem>
 								<ListItemText
 									primary={item.product.name}
-									secondary={`${item.product.price} ₽`}
+									secondary={`${item.product.price} ₽ x ${item.quantity}`}
 								/>
-								<ListItemSecondaryAction>
-									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-										<IconButton
-											size="small"
-											onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
-											disabled={item.quantity <= 1}
-										>
-											<RemoveIcon />
-										</IconButton>
-										<Typography>{item.quantity}</Typography>
-										<IconButton
-											size="small"
-											onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
-										>
-											<AddIcon />
-										</IconButton>
-										<IconButton
-											edge="end"
-											onClick={() => removeFromCart(item.product._id)}
-											sx={{ ml: 2 }}
-										>
-											<DeleteIcon />
-										</IconButton>
-									</Box>
-								</ListItemSecondaryAction>
+								<Box sx={{ display: 'flex', alignItems: 'center' }}>
+									<IconButton
+										size="small"
+										onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
+										disabled={item.quantity <= 1}
+									>
+										<RemoveIcon />
+									</IconButton>
+									<Typography sx={{ mx: 1 }}>{item.quantity}</Typography>
+									<IconButton
+										size="small"
+										onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
+									>
+										<AddIcon />
+									</IconButton>
+									<IconButton
+										edge="end"
+										onClick={() => removeFromCart(item.product._id)}
+										sx={{ ml: 2 }}
+									>
+										<DeleteIcon />
+									</IconButton>
+								</Box>
 							</ListItem>
 							<Divider />
 						</React.Fragment>

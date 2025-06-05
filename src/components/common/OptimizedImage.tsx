@@ -48,12 +48,19 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
 	}
 
 	return (
-		<>
+		<Box
+			sx={{
+				width: width || '100%',
+				height: height || 'auto',
+				position: 'relative',
+				...style,
+			}}
+		>
 			{!isLoaded && (
 				<Skeleton
 					variant="rectangular"
-					width={width}
-					height={height}
+					width="100%"
+					height="100%"
 					animation="wave"
 				/>
 			)}
@@ -62,15 +69,15 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
 				alt={alt}
 				loading="lazy"
 				style={{
-					...style,
-					width,
-					height,
+					width: '100%',
+					height: '100%',
+					objectFit: 'contain',
 					opacity: isLoaded ? 1 : 0,
 					transition: 'opacity 0.3s ease-in-out',
 				}}
 				className={className}
 			/>
-		</>
+		</Box>
 	);
 };
 

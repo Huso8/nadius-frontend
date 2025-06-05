@@ -5,20 +5,17 @@ import { motion } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 import OptimizedImage from '../components/common/OptimizedImage';
 
-const MotionTypography = motion(Typography);
-const MotionButton = motion(Button);
-const MotionCard = motion(Card);
+const MotionTypography = motion.create(Typography);
+const MotionButton = motion.create(Button);
+const MotionCard = motion.create(Card);
 
 const StyledFeatureCard = styled(Card)(({ theme }) => ({
-	height: '100%',
+	height: '500px',
 	display: 'flex',
 	flexDirection: 'column',
-	justifyContent: 'flex-start',
-	alignItems: 'center',
 	background: 'rgba(255,255,255,0.95)',
 	borderRadius: '32px',
 	boxShadow: '0 3px 0 0 rgba(139,109,92,0.12)',
-	padding: theme.spacing(0, 0, 2, 0),
 	border: '1.5px solid #f3e6de',
 	overflow: 'hidden',
 	transition: 'transform 0.3s, box-shadow 0.3s',
@@ -28,6 +25,27 @@ const StyledFeatureCard = styled(Card)(({ theme }) => ({
 		borderColor: '#e0cfc2',
 	},
 }));
+
+const ImageContainer = styled(Box)({
+	width: '100%',
+	height: '250px',
+	position: 'relative',
+	overflow: 'hidden',
+	borderRadius: '32px 32px 0 0',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+});
+
+const CardContentWrapper = styled(Box)({
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	justifyContent: 'center',
+	height: '250px',
+	padding: '32px',
+	gap: '16px',
+});
 
 const features = [
 	{
@@ -41,14 +59,16 @@ const features = [
 		image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500',
 	},
 	{
-		title: 'Доставка',
-		description: 'Быстрая доставка по всему городу',
+		title: 'Скидки',
+		description: 'Для любимых постоянных клиентов, в честь дня рождения, и других праздников',
 		image: 'https://images.unsplash.com/photo-1607083206968-13611e3d76db?w=500',
 	},
 ];
 
 const LOGO_URL = '/logo_nadius.png';
 const HERO_BG = 'https://images.unsplash.com/photo-1558326567-98ae2405596b?w=1920';
+const DESSERT_BG = 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=1920';
+// const DESSERT_BG = 'https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=1920';
 
 const Home: React.FC = () => {
 	return (
@@ -156,25 +176,47 @@ const Home: React.FC = () => {
 								sx={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100%', background: 'none', boxShadow: 'none' }}
 							>
 								<StyledFeatureCard>
-									<OptimizedImage
-										src={feature.image}
-										alt={feature.title}
-										style={{
-											width: '100%',
-											height: 180,
-											objectFit: 'cover',
-											borderRadius: '32px 32px 0 0',
-											marginBottom: 0
-										}}
-									/>
-									<CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', p: 3 }}>
-										<Typography variant="h5" component="h3" gutterBottom align="center" sx={{ fontWeight: 700 }}>
+									<ImageContainer>
+										<OptimizedImage
+											src={feature.image}
+											alt={feature.title}
+											style={{
+												width: '100%',
+												height: '100%',
+												objectFit: 'cover',
+												objectPosition: 'center center',
+											}}
+										/>
+									</ImageContainer>
+									<CardContentWrapper>
+										<Typography
+											variant="h5"
+											component="h3"
+											sx={{
+												fontWeight: 700,
+												textAlign: 'center',
+												width: '100%',
+												mb: 1
+											}}
+										>
 											{feature.title}
 										</Typography>
-										<Typography variant="body1" color="text.secondary" align="center">
+										<Typography
+											variant="body1"
+											color="text.secondary"
+											sx={{
+												textAlign: 'center',
+												width: '100%',
+												lineHeight: 1.6,
+												height: '48px',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center'
+											}}
+										>
 											{feature.description}
 										</Typography>
-									</CardContent>
+									</CardContentWrapper>
 								</StyledFeatureCard>
 							</MotionCard>
 						</Grid>
@@ -185,53 +227,96 @@ const Home: React.FC = () => {
 			{/* CTA Section */}
 			<Box
 				sx={{
-					background: 'linear-gradient(to right, #8b6d5c, #a3d6c4)',
-					py: 8,
-					color: 'white',
+					position: 'relative',
+					height: { xs: '60vh', md: '80vh' },
+					width: '100%',
+					overflow: 'hidden',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
 				}}
 			>
-				<Container maxWidth="md">
-					<MotionTypography
-						variant="h3"
-						align="center"
-						gutterBottom
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.8 }}
+				<Box
+					sx={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						width: '100%',
+						height: '100%',
+						background: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${DESSERT_BG})`,
+						backgroundSize: 'cover',
+						backgroundPosition: 'center',
+						backgroundAttachment: 'fixed',
+					}}
+				/>
+				<Container maxWidth="md" sx={{ position: 'relative', zIndex: 1 }}>
+					<Box
+						sx={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							justifyContent: 'center',
+							textAlign: 'center',
+							color: 'white',
+							py: 8,
+						}}
 					>
-						Закажите свой идеальный десерт
-					</MotionTypography>
-					<MotionTypography
-						variant="h6"
-						align="center"
-						paragraph
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.8, delay: 0.2 }}
-						sx={{ mb: 4 }}
-					>
-						Мы создадим для вас уникальный десерт, который запомнится надолго
-					</MotionTypography>
-					<Box sx={{ textAlign: 'center' }}>
-						<Box component={motion.div} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.4 }}>
+						<MotionTypography
+							variant="h2"
+							align="center"
+							gutterBottom
+							initial={{ opacity: 0, y: 20 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							viewport={{ once: true }}
+							transition={{ duration: 0.8 }}
+							sx={{
+								fontWeight: 700,
+								mb: 3,
+								textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+							}}
+						>
+							Закажите свой идеальный десерт
+						</MotionTypography>
+						<MotionTypography
+							variant="h5"
+							align="center"
+							paragraph
+							initial={{ opacity: 0, y: 20 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							viewport={{ once: true }}
+							transition={{ duration: 0.8, delay: 0.2 }}
+							sx={{
+								mb: 4,
+								maxWidth: '800px',
+								textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+							}}
+						>
+							Создайте незабываемый вкус праздника с нашими авторскими десертами
+						</MotionTypography>
+						<Box
+							component={motion.div}
+							initial={{ opacity: 0, y: 20 }}
+							whileInView={{ opacity: 1, y: 0 }}
+							viewport={{ once: true }}
+							transition={{ duration: 0.8, delay: 0.4 }}
+						>
 							<Button
 								variant="contained"
 								size="large"
 								component={RouterLink}
-								to="/checkout"
+								to="/menu"
 								sx={{
-									background: 'white',
+									background: 'rgba(255, 255, 255, 0.9)',
 									color: '#8b6d5c',
 									'&:hover': {
-										background: '#f5f5f5',
+										background: 'rgba(255, 255, 255, 1)',
 									},
 									px: 4,
 									py: 1.5,
+									fontWeight: 600,
 								}}
 							>
-								Сделать заказ
+								Перейти в меню
 							</Button>
 						</Box>
 					</Box>

@@ -33,11 +33,13 @@ const Menu: React.FC = () => {
 				Наше меню
 			</Typography>
 			<Grid container spacing={4}>
-				{products.map((product: Product) => (
-					<Grid item key={product._id} xs={12} sm={6} md={4}>
-						<ProductCard product={product} />
-					</Grid>
-				))}
+				{products
+					.filter((product: Product) => product._id)
+					.map((product: Product) => (
+						<Grid item key={product._id} xs={12} sm={6} md={4}>
+							<ProductCard product={product} />
+						</Grid>
+					))}
 			</Grid>
 		</Container>
 	);

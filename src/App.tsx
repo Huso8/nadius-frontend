@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { CircularProgress, Box } from '@mui/material';
@@ -9,6 +9,7 @@ import Layout from './components/Layout/Layout';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { queryClient } from './services/queryClient';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 // Ленивая загрузка компонентов
 const Home = React.lazy(() => import('./pages/Home'));
@@ -21,6 +22,14 @@ const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
 const Contacts = React.lazy(() => import('./pages/Contacts'));
 const Search = React.lazy(() => import('./pages/Search'));
+
+// Админ-компоненты
+const AdminLayout = React.lazy(() => import('./components/AdminLayout'));
+const AdminDashboard = React.lazy(() => import('./pages/admin/Dashboard'));
+const AdminProducts = React.lazy(() => import('./pages/admin/Products'));
+const AdminOrders = React.lazy(() => import('./pages/admin/Orders'));
+const AdminUsers = React.lazy(() => import('./pages/admin/Users'));
+const AdminReviews = React.lazy(() => import('./pages/admin/Reviews'));
 
 // Компонент загрузки
 const LoadingFallback = () => (
@@ -43,23 +52,59 @@ function App() {
 				<CssBaseline />
 				<AuthProvider>
 					<CartProvider>
-						<Router future={{ v7_startTransition: true }}>
-							<Layout>
-								<Suspense fallback={<LoadingFallback />}>
-									<Routes>
-										<Route path="/" element={<Home />} />
-										<Route path="/menu" element={<Menu />} />
-										<Route path="/product/:id" element={<ProductDetails />} />
-										<Route path="/cart" element={<Cart />} />
-										<Route path="/checkout" element={<Checkout />} />
-										<Route path="/profile" element={<Profile />} />
-										<Route path="/login" element={<Login />} />
-										<Route path="/register" element={<Register />} />
-										<Route path="/contacts" element={<Contacts />} />
-										<Route path="/search" element={<Search />} />
-									</Routes>
-								</Suspense>
-							</Layout>
+						<Router future={{
+							v7_startTransition: true,
+							v7_relativeSplatPath: true
+						}}>
+							<Suspense fallback={<LoadingFallback />}>
+								<Routes>
+									{/* Публичные маршруты */}
+									<Route path="/" element={<Layout><Home /></Layout>} />
+									<Route path="/menu" element={<Layout><Menu /></Layout>} />
+									<Route path="/product/:id" element={<Layout><ProductDetails /></Layout>} />
+									<Route path="/cart" element={<Layout><Cart /></Layout>} />
+									<Route path="/checkout" element={<Layout><Checkout /></Layout>} />
+									<Route path="/profile" element={<Layout><Profile /></Layout>} />
+									<Route path="/login" element={<Layout><Login /></Layout>} />
+									<Route path="/register" element={<Layout><Register /></Layout>} />
+									<Route path="/contacts" element={<Layout><Contacts /></Layout>} />
+									<Route path="/search" element={<Layout><Search /></Layout>} />
+
+									{/* Админ-маршруты */}
+									<Route path="/admin" element={
+										<ProtectedRoute>
+											<AdminLayout>
+												<Outlet />
+											</AdminLayout>
+										</ProtectedRoute>
+									}>
+										<Route index element={<Navigate to="/admin/products" replace />} />
+										<Route path="products" element={
+											<React.Suspense fallback={<LoadingFallback />}>
+												<AdminProducts />
+											</React.Suspense>
+										} />
+										<Route path="orders" element={
+											<React.Suspense fallback={<LoadingFallback />}>
+												<AdminOrders />
+											</React.Suspense>
+										} />
+										<Route path="users" element={
+											<React.Suspense fallback={<LoadingFallback />}>
+												<AdminUsers />
+											</React.Suspense>
+										} />
+										<Route path="reviews" element={
+											<React.Suspense fallback={<LoadingFallback />}>
+												<AdminReviews />
+											</React.Suspense>
+										} />
+									</Route>
+
+									{/* Редирект для несуществующих маршрутов */}
+									<Route path="*" element={<Navigate to="/" replace />} />
+								</Routes>
+							</Suspense>
 						</Router>
 					</CartProvider>
 				</AuthProvider>

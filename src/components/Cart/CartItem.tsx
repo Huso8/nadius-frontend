@@ -47,7 +47,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 							>
 								<RemoveIcon />
 							</IconButton>
-							<Typography sx={{ mx: 2 }}>{quantity}</Typography>
+							<Typography sx={{ mx: 1 }}>{quantity}</Typography>
 							<IconButton
 								size="small"
 								onClick={() => updateQuantity(product._id, quantity + 1)}

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { IconButton, Avatar, Menu, MenuItem } from '@mui/material';
+import { IconButton, Avatar, Menu, MenuItem, Typography, Box } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import { useAuth } from '../../../context/AuthContext';
 
 const AuthMenu: React.FC = () => {
 	const [authMenuAnchor, setAuthMenuAnchor] = useState<null | HTMLElement>(null);
-	const { isAuthenticated, logout } = useAuth();
+	const { isAuthenticated, logout, user } = useAuth();
 	const navigate = useNavigate();
 
 	const handleAuthClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -25,18 +25,32 @@ const AuthMenu: React.FC = () => {
 
 	return (
 		<>
-			<IconButton
-				color="inherit"
-				onClick={handleAuthClick}
-				sx={{
-					ml: { xs: 0.5, sm: 1 },
-					mr: { xs: 0.5, sm: 1 }
-				}}
-			>
-				<Avatar sx={{ width: 32, height: 32, bgcolor: 'rgba(255,255,255,0.2)' }}>
-					<PersonIcon />
-				</Avatar>
-			</IconButton>
+			<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+				{isAuthenticated && user?.name && (
+					<Typography
+						variant="body1"
+						sx={{
+							color: 'white',
+							display: { xs: 'none', sm: 'block' },
+							fontWeight: 500
+						}}
+					>
+						{user.name}
+					</Typography>
+				)}
+				<IconButton
+					color="inherit"
+					onClick={handleAuthClick}
+					sx={{
+						ml: { xs: 0.5, sm: 1 },
+						mr: { xs: 0.5, sm: 1 }
+					}}
+				>
+					<Avatar sx={{ width: 32, height: 32, bgcolor: 'rgba(255,255,255,0.2)' }}>
+						<PersonIcon />
+					</Avatar>
+				</IconButton>
+			</Box>
 			<Menu
 				anchorEl={authMenuAnchor}
 				open={Boolean(authMenuAnchor)}

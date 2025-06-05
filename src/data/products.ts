@@ -108,7 +108,8 @@ const generateProducts = (): Product[] => {
 			description: `Классический торт "${name}" с нежным кремом и декором`,
 			price: 1299 + Math.floor(Math.random() * 500),
 			image: cakeImages[index],
-			category: 'cake'
+			category: 'Торты',
+			available: true
 		});
 	});
 
@@ -127,7 +128,8 @@ const generateProducts = (): Product[] => {
 			description: `Свежая выпечка "${name}" из натуральных ингредиентов`,
 			price: 199 + Math.floor(Math.random() * 300),
 			image: pastryImages[index],
-			category: 'pastry'
+			category: 'Выпечка',
+			available: true
 		});
 	});
 
@@ -146,7 +148,8 @@ const generateProducts = (): Product[] => {
 			description: `Домашнее печенье "${name}"`,
 			price: 299 + Math.floor(Math.random() * 200),
 			image: cookiesImages[index],
-			category: 'cookies'
+			category: 'Печенье',
+			available: true
 		});
 	});
 
@@ -164,7 +167,8 @@ const generateProducts = (): Product[] => {
 			description: `Классический десерт "${name}"`,
 			price: 399 + Math.floor(Math.random() * 400),
 			image: dessertImages[index],
-			category: 'dessert'
+			category: 'Десерты',
+			available: true
 		});
 	});
 

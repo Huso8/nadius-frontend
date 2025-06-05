@@ -6,13 +6,14 @@ import { useProduct, useReviews } from '../services/api';
 import { ROUTES } from '../constants/navigation';
 import OptimizedImage from '../components/common/OptimizedImage';
 import ReviewForm from '../components/ReviewForm';
+import { Review } from '../types';
 
 const ProductDetails: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
 	const { addToCart } = useCart();
 
 	const { data: product, isLoading: productLoading, error: productError } = useProduct(id || '');
-	const { data: reviews = [], isLoading: reviewsLoading } = useReviews(id || '');
+	const { data: reviews, isLoading: reviewsLoading } = useReviews(id || '');
 
 	const handleAddToCart = () => {
 		if (product) {
@@ -40,23 +41,30 @@ const ProductDetails: React.FC = () => {
 		);
 	}
 
-	const averageRating = reviews.length > 0
-		? reviews.reduce((acc: number, review: { rating: number }) => acc + review.rating, 0) / reviews.length
+	const reviewsList = reviews || [];
+	const averageRating = reviewsList.length > 0
+		? reviewsList.reduce((acc: number, review: { rating: number }) => acc + review.rating, 0) / reviewsList.length
 		: 0;
 
 	return (
 		<Container sx={{ py: 4 }}>
 			<Grid container spacing={4}>
 				<Grid item xs={12} md={6}>
-					<OptimizedImage
-						src={product.image}
-						alt={product.name}
-						style={{
-							width: '100%',
-							height: 'auto',
-							borderRadius: '8px',
-						}}
-					/>
+					<Box sx={{
+						width: '500px',
+						height: '300px',
+						margin: '0 auto'
+					}}>
+						<OptimizedImage
+							src={product.image}
+							alt={product.name}
+							width="100%"
+							height="100%"
+							style={{
+								borderRadius: '8px',
+							}}
+						/>
+					</Box>
 				</Grid>
 				<Grid item xs={12} md={6}>
 					<Typography variant="h4" component="h1" gutterBottom>
@@ -68,7 +76,7 @@ const ProductDetails: React.FC = () => {
 					<Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
 						<Rating value={averageRating} readOnly precision={0.5} />
 						<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-							({reviews.length} отзывов)
+							({reviewsList.length} отзывов)
 						</Typography>
 					</Box>
 					<Typography variant="h5" color="primary" gutterBottom>
@@ -88,20 +96,20 @@ const ProductDetails: React.FC = () => {
 						<Typography variant="h6" gutterBottom>
 							Оставить отзыв
 						</Typography>
-						<ReviewForm productId={product._id} />
+						<ReviewForm productId={String(product._id)} />
 					</Box>
 
 					<Box sx={{ mt: 4 }}>
 						<Typography variant="h6" gutterBottom>
 							Отзывы
 						</Typography>
-						{reviews.length === 0 ? (
+						{reviewsList.length === 0 ? (
 							<Typography color="text.secondary">
 								Пока нет отзывов. Будьте первым!
 							</Typography>
 						) : (
-							reviews.map((review: { _id: string; rating: number; comment: string; user?: { name: string } }) => (
-								<Box key={review._id} sx={{ mb: 2 }}>
+							reviewsList.map((review: Review) => (
+								<Box key={`${review._id}-${review.createdAt}`} sx={{ mb: 2 }}>
 									<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
 										<Rating value={review.rating} readOnly size="small" />
 										<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>

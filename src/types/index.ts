@@ -5,6 +5,7 @@ export interface Product {
 	price: number;
 	image: string;
 	category: string;
+	available: boolean;
 }
 
 export interface CartItem {
@@ -13,33 +14,84 @@ export interface CartItem {
 }
 
 export interface OrderItem {
-	product: string;
+	_id: string;
+	product: Product;
 	quantity: number;
 	price: number;
+}
+
+export type OrderStatus = 'pending' | 'processing' | 'completed' | 'cancelled';
+
+export interface Coordinates {
+	lat: number;
+	lon: number;
+}
+
+export interface DeliveryAddress {
+	address: string;
+	coordinates: Coordinates | null;
+}
+
+export interface ContactInfo {
+	name: string;
+	email: string;
+	phone: string;
 }
 
 export interface Order {
 	_id: string;
 	items: OrderItem[];
 	totalAmount: number;
-	status: 'pending' | 'processing' | 'completed' | 'cancelled';
-	name: string;
-	phone: string;
-	address: string;
+	status: OrderStatus;
+	deliveryAddress: DeliveryAddress;
+	contactInfo: ContactInfo;
 	comment?: string;
 	createdAt: string;
+	updatedAt: string;
 }
 
-export interface ContactInfo {
-	address: string;
-	phone: string;
-	email: string;
-	workingHours: string;
+export interface CreateOrderData {
+	items: {
+		product: string;
+		quantity: number;
+		price: number;
+	}[];
+	totalAmount: number;
+	deliveryAddress: DeliveryAddress;
+	contactInfo: ContactInfo;
+	comment?: string;
 }
 
 export interface User {
-	_id: string;
-	email: string;
+	id: string;
 	name: string;
+	email: string;
 	role: 'user' | 'admin';
+	phone?: string;
+	address?: string;
+}
+
+export interface Review {
+	_id: string;
+	user: {
+		_id: string;
+		name: string;
+	};
+	product: string;
+	rating: number;
+	comment: string;
+	images?: string[];
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface Recipe {
+	id: number;
+	name: string;
+	description: string;
+	ingredients: string[];
+	instructions: string[];
+	image: string;
+	createdAt: string;
+	updatedAt: string;
 } 

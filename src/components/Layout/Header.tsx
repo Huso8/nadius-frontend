@@ -34,7 +34,7 @@ const Header: React.FC = () => {
 	const location = useLocation();
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down(BREAKPOINTS.MOBILE));
-	const { data: products = [] } = useProducts();
+	const { data: products } = useProducts();
 
 	// Сброс индикатора загрузки при изменении маршрута
 	React.useEffect(() => {
@@ -103,7 +103,7 @@ const Header: React.FC = () => {
 						Корзина
 					</Button>
 
-					<SearchBar products={products} />
+					<SearchBar products={products || []} />
 
 					<AuthMenu />
 

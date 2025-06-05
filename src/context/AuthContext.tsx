@@ -2,13 +2,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth as useApiAuth } from '../services/api';
 import { ROUTES } from '../constants/navigation';
 import axios from 'axios';
+import { User } from '../types';
+import { ApiResponse } from '../services/api';
 
-interface User {
-	id: string;
-	email: string;
-	name: string;
-	role: string;
-}
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 interface AuthContextType {
 	user: User | null;
@@ -22,7 +19,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const [user, setUser] = useState<User | null>(null);
+	const [user, setUser] = useState<User | null>(() => {
+		const savedUser = localStorage.getItem('user');
+		return savedUser ? JSON.parse(savedUser) : null;
+	});
 	const [isLoading, setIsLoading] = useState(true);
 	const { login: apiLogin, register: apiRegister } = useApiAuth();
 
@@ -31,13 +31,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			const token = localStorage.getItem('token');
 			if (token) {
 				try {
-					const response = await axios.get(`${process.env.REACT_APP_API_URL}/auth/me`, {
+					const response = await axios.get<ApiResponse<User>>(`${API_URL}/auth/me`, {
 						headers: {
 							Authorization: `Bearer ${token}`
 						}
 					});
-					setUser(response.data);
-					localStorage.setItem('user', JSON.stringify(response.data));
+					if (response.data && response.data.data) {
+						setUser(response.data.data);
+						localStorage.setItem('user', JSON.stringify(response.data.data));
+					}
 				} catch (error) {
 					console.error('Auth check error:', error);
 					localStorage.removeItem('token');
@@ -55,9 +57,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		setIsLoading(true);
 		try {
 			const response = await apiLogin.mutateAsync({ email, password });
-			localStorage.setItem('token', response.token);
-			localStorage.setItem('user', JSON.stringify(response.user));
-			setUser(response.user);
+			if (response?.token && response?.user) {
+				localStorage.setItem('token', response.token);
+				localStorage.setItem('user', JSON.stringify(response.user));
+				setUser(response.user);
+			} else {
+				throw new Error('Неверный формат ответа от сервера');
+			}
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				if (error.response?.status === 401) {
+					throw new Error('Неверный email или пароль');
+				}
+				throw new Error(error.response?.data?.message || 'Ошибка при входе');
+			}
+			throw error;
 		} finally {
 			setIsLoading(false);
 		}
@@ -67,11 +81,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		setIsLoading(true);
 		try {
 			const response = await apiRegister.mutateAsync({ email, password, name });
-			localStorage.setItem('token', response.token);
-			localStorage.setItem('user', JSON.stringify(response.user));
-			setUser(response.user);
+			if (response?.token && response?.user) {
+				localStorage.setItem('token', response.token);
+				localStorage.setItem('user', JSON.stringify(response.user));
+				setUser(response.user);
+			} else {
+				throw new Error('Неверный формат ответа от сервера');
+			}
 		} catch (error) {
 			console.error('Registration error:', error);
+			if (axios.isAxiosError(error)) {
+				const message = error.response?.data?.message || 'Ошибка при регистрации';
+				throw new Error(message);
+			}
 			throw error;
 		} finally {
 			setIsLoading(false);

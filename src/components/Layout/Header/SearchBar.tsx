@@ -48,13 +48,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ products }) => {
 	};
 
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setSearch(value);
-		if (value.trim()) {
-			navigate(`/search?q=${encodeURIComponent(value.trim())}`);
-		} else {
-			navigate('/search');
-		}
+		setSearch(e.target.value);
 	};
 
 	const handleSelectProduct = (productName: string) => {
@@ -84,13 +78,36 @@ const SearchBar: React.FC<SearchBarProps> = ({ products }) => {
 				open={Boolean(searchMenuAnchor)}
 				onClose={handleSearchMenuClose}
 				PaperProps={{
-					sx: { width: 300, maxWidth: '100%' }
+					sx: {
+						width: 300,
+						maxWidth: '100%',
+						mt: 1,
+						boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+					}
 				}}
 			>
 				<Box sx={{ p: 1 }}>
-					<Paper component="form" onSubmit={handleSearchSubmit} sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}>
+					<Paper
+						component="form"
+						onSubmit={handleSearchSubmit}
+						sx={{
+							p: '2px 4px',
+							display: 'flex',
+							alignItems: 'center',
+							border: '1px solid rgba(0,0,0,0.1)',
+							'&:hover': {
+								border: '1px solid rgba(0,0,0,0.2)'
+							}
+						}}
+					>
 						<InputBase
-							sx={{ ml: 1, flex: 1 }}
+							sx={{
+								ml: 1,
+								flex: 1,
+								'& input': {
+									padding: '8px 0'
+								}
+							}}
 							placeholder="Поиск..."
 							value={search}
 							onChange={handleSearchChange}
@@ -103,11 +120,30 @@ const SearchBar: React.FC<SearchBarProps> = ({ products }) => {
 						</IconButton>
 					</Paper>
 					{(focused || search) && filteredProducts.length > 0 && (
-						<List sx={{ maxHeight: 300, overflowY: 'auto' }}>
+						<List sx={{
+							maxHeight: 300,
+							overflowY: 'auto',
+							mt: 1,
+							border: '1px solid rgba(0,0,0,0.1)',
+							borderRadius: 1
+						}}>
 							{filteredProducts.map(product => (
 								<ListItem key={product._id} disablePadding>
-									<ListItemButton onMouseDown={() => handleSelectProduct(product.name)}>
-										<ListItemText primary={product.name} />
+									<ListItemButton
+										onMouseDown={() => handleSelectProduct(product.name)}
+										sx={{
+											'&:hover': {
+												backgroundColor: 'rgba(0,0,0,0.04)'
+											}
+										}}
+									>
+										<ListItemText
+											primary={product.name}
+											primaryTypographyProps={{
+												noWrap: true,
+												style: { fontSize: '14px' }
+											}}
+										/>
 									</ListItemButton>
 								</ListItem>
 							))}
