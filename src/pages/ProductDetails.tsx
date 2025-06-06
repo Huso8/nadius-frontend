@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Grid, Typography, Button, Box, Rating } from '@mui/material';
+import { Container, Grid, Typography, Button, Box, Rating, CircularProgress } from '@mui/material';
 import { useCart } from '../context/CartContext';
 import { useProduct, useReviews } from '../services/api';
 import { ROUTES } from '../constants/navigation';
@@ -11,9 +11,10 @@ import { Review } from '../types';
 const ProductDetails: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
 	const { addToCart } = useCart();
+	const [showReviews, setShowReviews] = useState(false);
 
 	const { data: product, isLoading: productLoading, error: productError } = useProduct(id || '');
-	const { data: reviews, isLoading: reviewsLoading } = useReviews(id || '');
+	const { data: reviews, isLoading: reviewsLoading, error: reviewsError } = useReviews(showReviews ? id || '' : '');
 
 	const handleAddToCart = () => {
 		if (product) {
@@ -21,11 +22,11 @@ const ProductDetails: React.FC = () => {
 		}
 	};
 
-	if (productLoading || reviewsLoading) {
+	if (productLoading) {
 		return (
 			<Container>
 				<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-					<Typography>Загрузка...</Typography>
+					<CircularProgress />
 				</Box>
 			</Container>
 		);
@@ -47,78 +48,71 @@ const ProductDetails: React.FC = () => {
 		: 0;
 
 	return (
-		<Container sx={{ py: 4 }}>
+		<Container>
 			<Grid container spacing={4}>
 				<Grid item xs={12} md={6}>
-					<Box sx={{
-						width: '500px',
-						height: '300px',
-						margin: '0 auto'
-					}}>
-						<OptimizedImage
-							src={product.image}
-							alt={product.name}
-							width="100%"
-							height="100%"
-							style={{
-								borderRadius: '8px',
-							}}
-						/>
-					</Box>
+					<OptimizedImage
+						src={product.image}
+						alt={product.name}
+						style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+					/>
 				</Grid>
 				<Grid item xs={12} md={6}>
-					<Typography variant="h4" component="h1" gutterBottom>
+					<Typography variant="h4" gutterBottom>
 						{product.name}
+					</Typography>
+					<Typography variant="h5" color="primary" gutterBottom>
+						{product.price} ₽
 					</Typography>
 					<Typography variant="body1" paragraph>
 						{product.description}
 					</Typography>
-					<Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-						<Rating value={averageRating} readOnly precision={0.5} />
-						<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-							({reviewsList.length} отзывов)
-						</Typography>
-					</Box>
-					<Typography variant="h5" color="primary" gutterBottom>
-						{product.price} ₽
-					</Typography>
 					<Button
 						variant="contained"
 						color="primary"
-						size="large"
 						onClick={handleAddToCart}
 						sx={{ mt: 2 }}
 					>
-						В корзину
+						Добавить в корзину
 					</Button>
 
 					<Box sx={{ mt: 4 }}>
-						<Typography variant="h6" gutterBottom>
-							Оставить отзыв
-						</Typography>
-						<ReviewForm productId={String(product._id)} />
-					</Box>
-
-					<Box sx={{ mt: 4 }}>
-						<Typography variant="h6" gutterBottom>
-							Отзывы
-						</Typography>
-						{reviewsList.length === 0 ? (
-							<Typography color="text.secondary">
-								Пока нет отзывов. Будьте первым!
+						<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+							<Typography variant="h6">
+								Отзывы
 							</Typography>
-						) : (
-							reviewsList.map((review: Review) => (
-								<Box key={`${review._id}-${review.createdAt}`} sx={{ mb: 2 }}>
-									<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-										<Rating value={review.rating} readOnly size="small" />
-										<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-											{review.user?.name || 'Пользователь'}
-										</Typography>
+							<Button
+								variant="outlined"
+								onClick={() => setShowReviews(!showReviews)}
+								disabled={reviewsLoading}
+							>
+								{showReviews ? 'Скрыть отзывы' : 'Показать отзывы'}
+							</Button>
+						</Box>
+						{showReviews && (
+							<>
+								{reviewsLoading ? (
+									<Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+										<CircularProgress />
 									</Box>
-									<Typography variant="body1">{review.comment}</Typography>
-								</Box>
-							))
+								) : reviewsList.length === 0 ? (
+									<Typography color="text.secondary">
+										Пока нет отзывов. Будьте первым!
+									</Typography>
+								) : (
+									reviewsList.map((review: Review) => (
+										<Box key={`${review._id}-${review.createdAt}`} sx={{ mb: 2 }}>
+											<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+												<Rating value={review.rating} readOnly size="small" />
+												<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+													{review.user?.name || 'Пользователь'}
+												</Typography>
+											</Box>
+											<Typography variant="body1">{review.comment}</Typography>
+										</Box>
+									))
+								)}
+							</>
 						)}
 					</Box>
 				</Grid>

@@ -180,21 +180,11 @@ export const useOrders = () => {
 };
 
 export const useAdminOrders = () => {
-	const queryClient = useQueryClient();
 	return useQuery<Order[]>({
 		queryKey: ['adminOrders'],
 		queryFn: async () => {
 			try {
-				const token = localStorage.getItem('token');
-				if (!token) {
-					throw new Error('Требуется авторизация');
-				}
-
-				const response = await api.get<Order[]>(API_ENDPOINTS.ORDERS, {
-					headers: {
-						'Authorization': `Bearer ${token}`
-					}
-				});
+				const response = await api.get<Order[]>(API_ENDPOINTS.ORDERS);
 				return response.data;
 			} catch (error) {
 				console.error('Error fetching admin orders:', error);

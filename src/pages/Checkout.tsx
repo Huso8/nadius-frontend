@@ -82,7 +82,7 @@ const Checkout: React.FC = () => {
 
 		try {
 			setLoading(true);
-			const response = await fetch(`${API_URL}/address/suggest?query=${encodeURIComponent(query)}`);
+			const response = await fetch(`${API_URL}/api/address/suggest?query=${encodeURIComponent(query)}`);
 
 			if (!response.ok) {
 				throw new Error('Failed to fetch address suggestions');
@@ -189,25 +189,29 @@ const Checkout: React.FC = () => {
 			return;
 		}
 
-		setIsSubmitting(true);
-		setError(null);
+		if (!selectedAddress) {
+			setErrors(prev => ({ ...prev, address: 'Выберите адрес из списка' }));
+			return;
+		}
 
 		try {
+			setLoading(true);
+			setError(null);
+
 			const orderItems = items.map((item: CartItem) => ({
-				product: item.product._id,
+				productId: item.product._id,
 				quantity: item.quantity,
 				price: item.product.price
 			}));
 
 			const orderData: CreateOrderData = {
 				items: orderItems,
-				totalAmount: total,
 				deliveryAddress: {
-					address: formData.address,
-					coordinates: selectedAddress?.coordinates ? {
-						lat: Number(selectedAddress.coordinates.lat),
-						lon: Number(selectedAddress.coordinates.lon)
-					} : null
+					address: selectedAddress.label,
+					coordinates: {
+						lat: parseFloat(selectedAddress.coordinates.lat),
+						lon: parseFloat(selectedAddress.coordinates.lon)
+					}
 				},
 				contactInfo: {
 					name: formData.name,
@@ -217,19 +221,14 @@ const Checkout: React.FC = () => {
 				comment: formData.comment
 			};
 
-			const response = await createOrderMutation.mutateAsync(orderData);
-
+			await createOrderMutation.mutateAsync(orderData);
 			clearCart();
-			navigate(`/orders/${response._id}`);
-		} catch (err) {
-			console.error('Ошибка при создании заказа:', err);
-			if (err instanceof Error) {
-				setError(err.message);
-			} else {
-				setError('Произошла неизвестная ошибка при создании заказа');
-			}
+			navigate('/order-success');
+		} catch (error) {
+			console.error('Error creating order:', error);
+			setError('Произошла ошибка при создании заказа. Пожалуйста, попробуйте еще раз.');
 		} finally {
-			setIsSubmitting(false);
+			setLoading(false);
 		}
 	};
 

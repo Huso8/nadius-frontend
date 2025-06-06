@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem } from '../types';
 
+interface CartState {
+	products: CartItem[];
+	total: number;
+}
+
 interface CartContextType {
 	items: CartItem[];
 	total: number;
@@ -14,14 +19,26 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const [items, setItems] = useState<CartItem[]>(() => {
-		const savedCart = localStorage.getItem('cart');
-		return savedCart ? JSON.parse(savedCart) : [];
+		try {
+			const savedCart = localStorage.getItem('cart');
+			if (savedCart) {
+				const parsedCart = JSON.parse(savedCart);
+				return Array.isArray(parsedCart) ? parsedCart : [];
+			}
+		} catch (error) {
+			console.error('Error loading cart from localStorage:', error);
+		}
+		return [];
 	});
 
-	const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+	const total = Array.isArray(items) ? items.reduce((sum, item) => sum + item.product.price * item.quantity, 0) : 0;
 
 	useEffect(() => {
-		localStorage.setItem('cart', JSON.stringify(items));
+		try {
+			localStorage.setItem('cart', JSON.stringify(items));
+		} catch (error) {
+			console.error('Error saving cart to localStorage:', error);
+		}
 	}, [items]);
 
 	const addToCart = (product: Product) => {

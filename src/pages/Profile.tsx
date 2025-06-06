@@ -59,7 +59,7 @@ const OrderItem: React.FC<{ order: Order; onCancel: (orderId: string) => void }>
 		</Box>
 		<Divider sx={{ mb: 2 }} />
 		<Box>
-			{order.items.map((item: any) => (
+			{order.products?.map((item: any) => (
 				<Box key={`${order._id}-${item._id}`} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
 					<Box>
 						<Typography variant="body1">
@@ -91,8 +91,8 @@ const OrderItem: React.FC<{ order: Order; onCancel: (orderId: string) => void }>
 	</Paper>
 );
 
-const OrdersList: React.FC<{ orders: any[]; onCancel: (orderId: string) => void }> = ({ orders, onCancel }) => {
-	if (orders.length === 0) {
+const OrdersList: React.FC<{ orders: Order[] | undefined; onCancel: (orderId: string) => void }> = ({ orders, onCancel }) => {
+	if (!orders || !Array.isArray(orders) || orders.length === 0) {
 		return <Typography>У вас пока нет заказов</Typography>;
 	}
 
@@ -111,7 +111,7 @@ const OrdersList: React.FC<{ orders: any[]; onCancel: (orderId: string) => void 
 };
 
 const Profile: React.FC = () => {
-	const { data: orders = [], isLoading: ordersLoading, error: ordersError } = useOrders();
+	const { data: orders, isLoading: ordersLoading, error: ordersError } = useOrders();
 	const { user, isLoading: authLoading } = useAuth();
 	const navigate = useNavigate();
 	const cancelOrder = useCancelOrder();
@@ -186,7 +186,7 @@ const Profile: React.FC = () => {
 			{ordersError ? (
 				<Alert severity="error" sx={{ mb: 2 }}>Ошибка при загрузке заказов</Alert>
 			) : (
-				<OrdersList orders={orders} onCancel={handleCancelClick} />
+				<OrdersList orders={Array.isArray(orders) ? orders : []} onCancel={handleCancelClick} />
 			)}
 
 			<Dialog open={cancelDialogOpen} onClose={() => setCancelDialogOpen(false)}>

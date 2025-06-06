@@ -5,7 +5,11 @@ import axios from 'axios';
 import { User } from '../types';
 import { ApiResponse } from '../services/api';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
+if (!API_URL) {
+	console.error('REACT_APP_API_URL is not defined in environment variables');
+}
 
 interface AuthContextType {
 	user: User | null;
@@ -31,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			const token = localStorage.getItem('token');
 			if (token) {
 				try {
-					const response = await axios.get<ApiResponse<User>>(`${API_URL}/auth/me`, {
+					const response = await axios.get<ApiResponse<User>>(`${API_URL}/api/auth/me`, {
 						headers: {
 							Authorization: `Bearer ${token}`
 						}

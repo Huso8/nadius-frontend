@@ -40,7 +40,7 @@ export interface ContactInfo {
 
 export interface Order {
 	_id: string;
-	items: OrderItem[];
+	products: OrderItem[];
 	totalAmount: number;
 	status: OrderStatus;
 	deliveryAddress: DeliveryAddress;
@@ -52,11 +52,10 @@ export interface Order {
 
 export interface CreateOrderData {
 	items: {
-		product: string;
+		productId: string;
 		quantity: number;
 		price: number;
 	}[];
-	totalAmount: number;
 	deliveryAddress: DeliveryAddress;
 	contactInfo: ContactInfo;
 	comment?: string;

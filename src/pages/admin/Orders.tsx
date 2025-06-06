@@ -14,16 +14,14 @@ import {
 	DialogTitle,
 	DialogContent,
 	DialogActions,
-	Select,
-	MenuItem,
 	FormControl,
 	InputLabel,
-	CircularProgress,
-	Alert,
+	Select,
+	MenuItem,
 	Chip
 } from '@mui/material';
 import { useAdminOrders, useUpdateOrderStatus } from '../../services/api';
-import { Order, OrderStatus } from '../../types';
+import { Order, OrderStatus, OrderItem } from '../../types';
 import { formatDate } from '../../utils/dateUtils';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
@@ -178,7 +176,7 @@ const Orders: React.FC = () => {
 									</Typography>
 								</TableCell>
 								<TableCell>
-									{order.items.map((item) => (
+									{order.products.map((item) => (
 										<Box key={`${order._id}-${item._id}`} sx={{ mb: 0.5 }}>
 											{item.product?.name || 'Товар недоступен'} x {item.quantity}
 										</Box>
