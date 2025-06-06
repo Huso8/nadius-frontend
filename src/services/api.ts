@@ -209,7 +209,14 @@ export const useUpdateOrderStatus = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async ({ id, status }: { id: string; status: Order['status'] }) => {
-			const { data } = await api.patch(`${API_ENDPOINTS.ORDERS}/${id}/status`, { status });
+			const token = localStorage.getItem('token');
+			const config = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			};
+			const { data } = await api.patch(`${API_ENDPOINTS.ORDERS}/${id}/status`, { status }, config);
 			return data;
 		},
 		onSuccess: () => {
@@ -269,7 +276,7 @@ export const useAuth = () => {
 };
 
 export const useReviews = (productId: string) => {
-	return useQuery({
+	return useQuery<Review[]>({
 		queryKey: ['reviews', productId],
 		queryFn: async () => {
 			try {

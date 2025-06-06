@@ -14,7 +14,7 @@ const ProductDetails: React.FC = () => {
 	const [showReviews, setShowReviews] = useState(false);
 
 	const { data: product, isLoading: productLoading, error: productError } = useProduct(id || '');
-	const { data: reviews, isLoading: reviewsLoading, error: reviewsError } = useReviews(showReviews ? id || '' : '');
+	const { data: reviews, isLoading: reviewsLoading } = useReviews(showReviews ? id || '' : '');
 
 	const handleAddToCart = () => {
 		if (product) {
@@ -22,7 +22,39 @@ const ProductDetails: React.FC = () => {
 		}
 	};
 
-	if (productLoading) {
+	const renderReviews = () => {
+		if (!showReviews) return null;
+
+		if (reviewsLoading) {
+			return (
+				<Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+					<CircularProgress />
+				</Box>
+			);
+		}
+
+		if (!reviews || reviews.length === 0) {
+			return (
+				<Typography color="text.secondary">
+					Пока нет отзывов. Будьте первым!
+				</Typography>
+			);
+		}
+
+		return reviews.map((review: Review) => (
+			<Box key={`${review._id}-${review.createdAt}`} sx={{ mb: 2 }}>
+				<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+					<Rating value={review.rating} readOnly size="small" />
+					<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+						{review.user?.name || 'Пользователь'}
+					</Typography>
+				</Box>
+				<Typography variant="body1">{review.comment}</Typography>
+			</Box>
+		));
+	};
+
+	if (productLoading || productError || !product) {
 		return (
 			<Container>
 				<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -31,21 +63,6 @@ const ProductDetails: React.FC = () => {
 			</Container>
 		);
 	}
-
-	if (productError || !product) {
-		return (
-			<Container>
-				<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-					<Typography color="error">Ошибка при загрузке продукта</Typography>
-				</Box>
-			</Container>
-		);
-	}
-
-	const reviewsList = reviews || [];
-	const averageRating = reviewsList.length > 0
-		? reviewsList.reduce((acc: number, review: { rating: number }) => acc + review.rating, 0) / reviewsList.length
-		: 0;
 
 	return (
 		<Container>
@@ -89,31 +106,7 @@ const ProductDetails: React.FC = () => {
 								{showReviews ? 'Скрыть отзывы' : 'Показать отзывы'}
 							</Button>
 						</Box>
-						{showReviews && (
-							<>
-								{reviewsLoading ? (
-									<Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-										<CircularProgress />
-									</Box>
-								) : reviewsList.length === 0 ? (
-									<Typography color="text.secondary">
-										Пока нет отзывов. Будьте первым!
-									</Typography>
-								) : (
-									reviewsList.map((review: Review) => (
-										<Box key={`${review._id}-${review.createdAt}`} sx={{ mb: 2 }}>
-											<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-												<Rating value={review.rating} readOnly size="small" />
-												<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-													{review.user?.name || 'Пользователь'}
-												</Typography>
-											</Box>
-											<Typography variant="body1">{review.comment}</Typography>
-										</Box>
-									))
-								)}
-							</>
-						)}
+						{renderReviews()}
 					</Box>
 				</Grid>
 			</Grid>
