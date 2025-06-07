@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Container, Grid, Typography, Button, Box, Rating, CircularProgress } from '@mui/material';
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Container, Grid, Typography, Button, Box, Rating, CircularProgress, IconButton } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useCart } from '../context/CartContext';
 import { useProduct, useReviews } from '../services/api';
 import { ROUTES } from '../constants/navigation';
@@ -10,11 +11,11 @@ import { Review } from '../types';
 
 const ProductDetails: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
+	const navigate = useNavigate();
 	const { addToCart } = useCart();
-	const [showReviews, setShowReviews] = useState(false);
 
 	const { data: product, isLoading: productLoading, error: productError } = useProduct(id || '');
-	const { data: reviews, isLoading: reviewsLoading } = useReviews(showReviews ? id || '' : '');
+	const { data: reviews, isLoading: reviewsLoading } = useReviews(id || '');
 
 	const handleAddToCart = () => {
 		if (product) {
@@ -23,8 +24,6 @@ const ProductDetails: React.FC = () => {
 	};
 
 	const renderReviews = () => {
-		if (!showReviews) return null;
-
 		if (reviewsLoading) {
 			return (
 				<Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -41,17 +40,30 @@ const ProductDetails: React.FC = () => {
 			);
 		}
 
-		return reviews.map((review: Review) => (
-			<Box key={`${review._id}-${review.createdAt}`} sx={{ mb: 2 }}>
-				<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-					<Rating value={review.rating} readOnly size="small" />
-					<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-						{review.user?.name || 'Пользователь'}
-					</Typography>
+		return (
+			<Box>
+				<Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+					<IconButton
+						onClick={() => navigate(ROUTES.MENU)}
+						sx={{ mr: 1 }}
+					>
+						<ArrowBackIcon />
+					</IconButton>
+					<Typography variant="h6">Отзывы</Typography>
 				</Box>
-				<Typography variant="body1">{review.comment}</Typography>
+				{reviews.map((review: Review) => (
+					<Box key={`${review._id}-${review.createdAt}`} sx={{ mb: 2 }}>
+						<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+							<Rating value={review.rating} readOnly size="small" />
+							<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+								{review.user?.name || 'Пользователь'}
+							</Typography>
+						</Box>
+						<Typography variant="body1">{review.comment}</Typography>
+					</Box>
+				))}
 			</Box>
-		));
+		);
 	};
 
 	if (productLoading || productError || !product) {
@@ -94,18 +106,6 @@ const ProductDetails: React.FC = () => {
 					</Button>
 
 					<Box sx={{ mt: 4 }}>
-						<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-							<Typography variant="h6">
-								Отзывы
-							</Typography>
-							<Button
-								variant="outlined"
-								onClick={() => setShowReviews(!showReviews)}
-								disabled={reviewsLoading}
-							>
-								{showReviews ? 'Скрыть отзывы' : 'Показать отзывы'}
-							</Button>
-						</Box>
 						{renderReviews()}
 					</Box>
 				</Grid>

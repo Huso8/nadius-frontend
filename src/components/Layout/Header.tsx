@@ -59,14 +59,17 @@ const Header: React.FC = () => {
 					<Box sx={{
 						display: 'flex',
 						alignItems: 'center',
-						gap: 2,
+						gap: 0,
 						'& img': {
 							width: { xs: '40px', [BREAKPOINTS.MOBILE]: '60px' },
 							height: { xs: '40px', [BREAKPOINTS.MOBILE]: '60px' },
-							objectFit: 'contain'
+							objectFit: 'contain',
+							cursor: 'pointer'
 						}
 					}}>
-						<img src={logo} alt="Nadius" />
+						<RouterLink to={ROUTES.HOME} style={{ textDecoration: 'none' }}>
+							<img src={logo} alt="Nadius" />
+						</RouterLink>
 					</Box>
 					<Typography
 						variant="h6"
@@ -78,10 +81,10 @@ const Header: React.FC = () => {
 							color: 'white',
 							fontFamily: 'JetBrains Mono',
 							fontSize: { xs: '20px', [BREAKPOINTS.MOBILE]: '30px' },
-							mx: { xs: 1, [BREAKPOINTS.MOBILE]: 2 }
+							mx: { xs: 0, [BREAKPOINTS.MOBILE]: 0.5 }
 						}}
 					>
-						{' Nadius '}
+						{'Nadius'}
 					</Typography>
 
 					<Navigation />
