@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Container, Typography, Link } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
+import { COLORS } from '../../constants/theme';
 
 const Footer: React.FC = () => {
 	return (
@@ -10,7 +11,7 @@ const Footer: React.FC = () => {
 				py: 3,
 				px: 2,
 				mt: 'auto',
-				backgroundColor: '#8b6d5c',
+				background: COLORS.BACKGROUND.GRADIENT,
 				color: 'white',
 			}}
 		>

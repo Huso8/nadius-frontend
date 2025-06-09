@@ -72,19 +72,20 @@ const DESSERT_BG = 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51
 
 const Home: React.FC = () => {
 	return (
-		<Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)' }}>
+		<Box sx={{ minHeight: '100vh', background: 'white' }}>
 			{/* Hero Section */}
 			<Box
 				sx={{
 					background: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${HERO_BG})`,
 					backgroundSize: 'cover',
 					backgroundPosition: 'center',
-					height: { xs: '80vh', md: '90vh' },
+					height: '100vh',
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'center',
 					position: 'relative',
 					overflow: 'hidden',
+					pt: '70px'
 				}}
 			>
 				<Container maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
@@ -130,7 +131,17 @@ const Home: React.FC = () => {
 						sx={{ mb: 4, textShadow: '1px 1px 2px rgba(0,0,0,0.3)', textAlign: 'center' }}
 					>
 					</MotionTypography>
-					<Box component={motion.div} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }} sx={{ mt: -20 }}>
+					<Box component={motion.div}
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.8, delay: 0.4 }}
+						sx={{
+							mt: -20,
+							position: 'relative',
+							zIndex: 10,
+							pointerEvents: 'auto'
+						}}
+					>
 						<Button
 							variant="contained"
 							size="large"
@@ -143,6 +154,9 @@ const Home: React.FC = () => {
 								},
 								px: 4,
 								py: 1.5,
+								position: 'relative',
+								zIndex: 10,
+								pointerEvents: 'auto'
 							}}
 						>
 							Смотреть меню

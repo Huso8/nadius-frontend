@@ -1,7 +1,6 @@
 export const NAVIGATION_ITEMS = [
 	{ text: 'Главная', path: '/' },
 	{ text: 'Меню', path: '/menu' },
-	{ text: 'Заказать', path: '/checkout' },
 	{ text: 'Контакты', path: '/contacts' }
 ] as const;
 

@@ -4,6 +4,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../../../types';
 import debounce from 'lodash/debounce';
+import { BREAKPOINTS } from '../../../constants/theme';
 
 interface SearchBarProps {
 	products: Product[];
@@ -68,7 +69,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ products }) => {
 	return (
 		<Box sx={{
 			display: 'flex',
-			alignItems: 'center',
+			alignItems: 'center'
 		}}>
 			<IconButton color="inherit" onClick={handleSearchClick}>
 				<SearchIcon />
@@ -77,13 +78,26 @@ const SearchBar: React.FC<SearchBarProps> = ({ products }) => {
 				anchorEl={searchMenuAnchor}
 				open={Boolean(searchMenuAnchor)}
 				onClose={handleSearchMenuClose}
+				disableScrollLock
 				PaperProps={{
 					sx: {
 						width: 300,
 						maxWidth: '100%',
 						mt: 1,
-						boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+						boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+						position: 'fixed',
+						top: '50px !important',
+						left: 'auto !important',
+						right: '16px !important'
 					}
+				}}
+				anchorOrigin={{
+					vertical: 'bottom',
+					horizontal: 'right',
+				}}
+				transformOrigin={{
+					vertical: 'top',
+					horizontal: 'right',
 				}}
 			>
 				<Box sx={{ p: 1 }}>
@@ -94,9 +108,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ products }) => {
 							p: '2px 4px',
 							display: 'flex',
 							alignItems: 'center',
-							border: '1px solid rgba(0,0,0,0.1)',
+							border: '1px solid rgba(255,255,255,0.2)',
+							backgroundColor: 'rgba(255,255,255,0.1)',
 							'&:hover': {
-								border: '1px solid rgba(0,0,0,0.2)'
+								backgroundColor: 'rgba(255,255,255,0.15)'
 							}
 						}}
 					>
@@ -104,8 +119,14 @@ const SearchBar: React.FC<SearchBarProps> = ({ products }) => {
 							sx={{
 								ml: 1,
 								flex: 1,
+								color: 'black',
 								'& input': {
-									padding: '8px 0'
+									padding: '8px 0',
+									color: 'black',
+									'&::placeholder': {
+										color: 'rgba(0,0,0,0.6)',
+										opacity: 1
+									}
 								}
 							}}
 							placeholder="Поиск..."
@@ -115,7 +136,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ products }) => {
 							onBlur={() => setTimeout(() => setFocused(false), 150)}
 							autoFocus
 						/>
-						<IconButton type="submit" sx={{ p: 1 }}>
+						<IconButton type="submit" sx={{ p: 1, color: 'white' }}>
 							<SearchIcon />
 						</IconButton>
 					</Paper>

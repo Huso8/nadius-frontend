@@ -8,7 +8,8 @@ import {
 	Box,
 	IconButton,
 	Fab,
-	CircularProgress
+	CircularProgress,
+	useScrollTrigger
 } from '@mui/material';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -36,6 +37,12 @@ const Header: React.FC = () => {
 	const isMobile = useMediaQuery(theme.breakpoints.down(BREAKPOINTS.MOBILE));
 	const { data: products } = useProducts();
 
+	// Эффект для изменения хедера при скролле
+	const trigger = useScrollTrigger({
+		disableHysteresis: true,
+		threshold: 100
+	});
+
 	// Сброс индикатора загрузки при изменении маршрута
 	React.useEffect(() => {
 		setIsLoading(false);
@@ -47,7 +54,24 @@ const Header: React.FC = () => {
 
 	return (
 		<>
-			<AppBar position="static" sx={{ background: COLORS.BACKGROUND.GRADIENT }}>
+			<AppBar
+				position="fixed"
+				sx={{
+					background: location.pathname === '/'
+						? (trigger ? 'white' : 'transparent')
+						: COLORS.BACKGROUND.GRADIENT,
+					boxShadow: location.pathname === '/'
+						? (trigger ? '0 2px 10px rgba(0,0,0,0.1)' : 'none')
+						: '0 2px 10px rgba(0,0,0,0.1)',
+					transition: 'all 0.8s ease-in-out',
+					'& *': {
+						color: location.pathname === '/'
+							? (trigger ? COLORS.PRIMARY : 'white')
+							: 'white',
+						transition: 'color 0.8s ease-in-out'
+					}
+				}}
+			>
 				<Toolbar sx={{
 					minHeight: {
 						xs: SPACING.HEADER.HEIGHT.MOBILE,
@@ -78,7 +102,6 @@ const Header: React.FC = () => {
 						sx={{
 							flexGrow: 1,
 							textDecoration: 'none',
-							color: 'white',
 							fontFamily: 'JetBrains Mono',
 							fontSize: { xs: '20px', [BREAKPOINTS.MOBILE]: '30px' },
 							mx: { xs: 0, [BREAKPOINTS.MOBILE]: 0.5 }
@@ -90,30 +113,47 @@ const Header: React.FC = () => {
 					<Navigation />
 
 					<Button
-						color="inherit"
 						component={RouterLink}
 						to={ROUTES.CART}
-						startIcon={
-							<Badge badgeContent={totalItems} color="error">
-								<ShoppingCartIcon />
-							</Badge>
-						}
 						sx={{
 							display: { xs: 'none', [BREAKPOINTS.MOBILE]: 'flex' },
-							mx: 1
+							mx: 1,
+							minWidth: 'auto',
+							padding: '8px'
 						}}
 					>
-						Корзина
+						<Badge
+							badgeContent={totalItems}
+							color="error"
+							sx={{
+								'& .MuiBadge-badge': {
+									backgroundColor: location.pathname === '/'
+										? (trigger ? COLORS.PRIMARY : 'error.main')
+										: 'error.main',
+									color: location.pathname === '/'
+										? (trigger ? 'white' : 'white')
+										: 'white'
+								}
+							}}
+						>
+							<ShoppingCartIcon />
+						</Badge>
 					</Button>
 
 					<SearchBar products={products || []} />
 
-					<AuthMenu />
+					<Box sx={{
+						display: 'flex',
+						alignItems: 'center'
+					}}>
+						<AuthMenu />
+					</Box>
 
 					<IconButton
-						color="inherit"
 						onClick={handleMobileMenuToggle}
-						sx={{ display: { xs: 'flex', [BREAKPOINTS.MOBILE]: 'none' } }}
+						sx={{
+							display: { xs: 'flex', [BREAKPOINTS.MOBILE]: 'none' }
+						}}
 					>
 						<MenuIcon />
 					</IconButton>

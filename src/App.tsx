@@ -17,6 +17,7 @@ const Menu = React.lazy(() => import('./pages/Menu'));
 const ProductDetails = React.lazy(() => import('./pages/ProductDetails'));
 const Cart = React.lazy(() => import('./pages/Cart'));
 const Checkout = React.lazy(() => import('./pages/Checkout'));
+const OrderSuccess = React.lazy(() => import('./pages/OrderSuccess'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
@@ -50,8 +51,8 @@ function App() {
 		<QueryClientProvider client={queryClient}>
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
-				<AuthProvider>
-					<CartProvider>
+				<CartProvider>
+					<AuthProvider>
 						<Router future={{
 							v7_startTransition: true,
 							v7_relativeSplatPath: true
@@ -64,6 +65,7 @@ function App() {
 									<Route path="/product/:id" element={<Layout><ProductDetails /></Layout>} />
 									<Route path="/cart" element={<Layout><Cart /></Layout>} />
 									<Route path="/checkout" element={<Layout><Checkout /></Layout>} />
+									<Route path="/order-success" element={<OrderSuccess />} />
 									<Route path="/profile" element={<Layout><Profile /></Layout>} />
 									<Route path="/login" element={<Layout><Login /></Layout>} />
 									<Route path="/register" element={<Layout><Register /></Layout>} />
@@ -106,8 +108,8 @@ function App() {
 								</Routes>
 							</Suspense>
 						</Router>
-					</CartProvider>
-				</AuthProvider>
+					</AuthProvider>
+				</CartProvider>
 			</ThemeProvider>
 		</QueryClientProvider>
 	);

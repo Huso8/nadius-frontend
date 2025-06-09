@@ -13,9 +13,8 @@ const ProductDetails: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const { addToCart } = useCart();
-
 	const { data: product, isLoading: productLoading, error: productError } = useProduct(id || '');
-	const { data: reviews, isLoading: reviewsLoading } = useReviews(id || '');
+	const { data: reviews, isLoading: reviewsLoading, refetch: refetchReviews } = useReviews(id || '');
 
 	const handleAddToCart = () => {
 		if (product) {
@@ -24,19 +23,13 @@ const ProductDetails: React.FC = () => {
 	};
 
 	const renderReviews = () => {
+		if (!product) return null;
+
 		if (reviewsLoading) {
 			return (
 				<Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
 					<CircularProgress />
 				</Box>
-			);
-		}
-
-		if (!reviews || reviews.length === 0) {
-			return (
-				<Typography color="text.secondary">
-					Пока нет отзывов. Будьте первым!
-				</Typography>
 			);
 		}
 
@@ -51,17 +44,33 @@ const ProductDetails: React.FC = () => {
 					</IconButton>
 					<Typography variant="h6">Отзывы</Typography>
 				</Box>
-				{reviews.map((review: Review) => (
-					<Box key={`${review._id}-${review.createdAt}`} sx={{ mb: 2 }}>
-						<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-							<Rating value={review.rating} readOnly size="small" />
-							<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-								{review.user?.name || 'Пользователь'}
-							</Typography>
+
+				<Box sx={{ mb: 4 }}>
+					<ReviewForm
+						productId={product._id}
+						onReviewAdded={() => {
+							refetchReviews();
+						}}
+					/>
+				</Box>
+
+				{!reviews || reviews.length === 0 ? (
+					<Typography color="text.secondary">
+						Пока нет отзывов. Будьте первым!
+					</Typography>
+				) : (
+					reviews.map((review: Review) => (
+						<Box key={`${review._id}-${review.createdAt}`} sx={{ mb: 2 }}>
+							<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+								<Rating value={review.rating} readOnly size="small" />
+								<Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+									{review.user?.name || 'Пользователь'}
+								</Typography>
+							</Box>
+							<Typography variant="body1">{review.comment}</Typography>
 						</Box>
-						<Typography variant="body1">{review.comment}</Typography>
-					</Box>
-				))}
+					))
+				)}
 			</Box>
 		);
 	};

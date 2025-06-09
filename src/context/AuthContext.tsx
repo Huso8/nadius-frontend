@@ -4,8 +4,9 @@ import { ROUTES } from '../constants/navigation';
 import axios from 'axios';
 import { User } from '../types';
 import { ApiResponse } from '../services/api';
+import { useCart } from './CartContext';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_API_URL;
 
 if (!API_URL) {
 	console.error('REACT_APP_API_URL is not defined in environment variables');
@@ -29,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	});
 	const [isLoading, setIsLoading] = useState(true);
 	const { login: apiLogin, register: apiRegister } = useApiAuth();
+	const { clearCart } = useCart();
 
 	useEffect(() => {
 		const checkAuth = async () => {
@@ -65,6 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				localStorage.setItem('token', response.token);
 				localStorage.setItem('user', JSON.stringify(response.user));
 				setUser(response.user);
+				clearCart();
 			} else {
 				throw new Error('Неверный формат ответа от сервера');
 			}
@@ -89,6 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				localStorage.setItem('token', response.token);
 				localStorage.setItem('user', JSON.stringify(response.user));
 				setUser(response.user);
+				clearCart();
 			} else {
 				throw new Error('Неверный формат ответа от сервера');
 			}
@@ -108,6 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		localStorage.removeItem('token');
 		localStorage.removeItem('user');
 		setUser(null);
+		clearCart();
 	};
 
 	return (

@@ -26,18 +26,6 @@ const AuthMenu: React.FC = () => {
 	return (
 		<>
 			<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-				{isAuthenticated && user?.name && (
-					<Typography
-						variant="body1"
-						sx={{
-							color: 'white',
-							display: { xs: 'none', sm: 'block' },
-							fontWeight: 500
-						}}
-					>
-						{user.name}
-					</Typography>
-				)}
 				<IconButton
 					color="inherit"
 					onClick={handleAuthClick}
@@ -50,11 +38,27 @@ const AuthMenu: React.FC = () => {
 						<PersonIcon />
 					</Avatar>
 				</IconButton>
+				{isAuthenticated && user?.name && (
+					<Typography
+						variant="body1"
+						sx={{
+							color: 'white',
+							display: { xs: 'none', sm: 'block' },
+							fontWeight: 500
+						}}
+					>
+						{user.name}
+					</Typography>
+				)}
 			</Box>
 			<Menu
 				anchorEl={authMenuAnchor}
 				open={Boolean(authMenuAnchor)}
 				onClose={handleAuthMenuClose}
+				disableScrollLock
+				MenuListProps={{
+					'aria-labelledby': 'auth-menu-button',
+				}}
 			>
 				{isAuthenticated ? (
 					<>
