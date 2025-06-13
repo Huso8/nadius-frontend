@@ -2,11 +2,11 @@ import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Button, Box, Rating } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import { Product } from '../../types';
+import { Product } from '../../types/types';
 import { useReviews } from '../../services/api';
 import { ROUTES } from '../../constants/navigation';
 import { COLORS, SPACING } from '../../constants/theme';
-import ReviewForm from '../ReviewForm';
+import ReviewForm from '../Reviews/ReviewForm';
 
 interface ProductCardProps {
 	product: Product;

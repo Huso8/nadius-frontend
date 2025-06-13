@@ -17,6 +17,10 @@ const Navigation: React.FC = () => {
 					color="inherit"
 					component={RouterLink}
 					to={item.path}
+					sx={{
+						fontSize: { xs: '16px', [BREAKPOINTS.MOBILE]: '18px' },
+						fontWeight: 600
+					}}
 				>
 					{item.text}
 				</Button>

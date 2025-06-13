@@ -21,7 +21,7 @@ import {
 	Chip
 } from '@mui/material';
 import { useAdminOrders, useUpdateOrderStatus } from '../../services/api';
-import { Order, OrderStatus, OrderItem } from '../../types';
+import { Order, OrderStatus, OrderItem } from '../../types/types';
 import { formatDate } from '../../utils/dateUtils';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 

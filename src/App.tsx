@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { CircularProgress, Box } from '@mui/material';
 import { QueryClientProvider } from '@tanstack/react-query';
-import theme from './theme';
+import theme from './theme/theme';
 import Layout from './components/Layout/Layout';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
@@ -25,7 +25,7 @@ const Contacts = React.lazy(() => import('./pages/Contacts'));
 const Search = React.lazy(() => import('./pages/Search'));
 
 // Админ-компоненты
-const AdminLayout = React.lazy(() => import('./components/AdminLayout'));
+const AdminLayout = React.lazy(() => import('./components/Admin/AdminLayout'));
 const AdminDashboard = React.lazy(() => import('./pages/admin/Dashboard'));
 const AdminProducts = React.lazy(() => import('./pages/admin/Products'));
 const AdminOrders = React.lazy(() => import('./pages/admin/Orders'));
@@ -52,11 +52,11 @@ function App() {
 			<ThemeProvider theme={theme}>
 				<CssBaseline />
 				<CartProvider>
-					<AuthProvider>
-						<Router future={{
-							v7_startTransition: true,
-							v7_relativeSplatPath: true
-						}}>
+					<Router future={{
+						v7_startTransition: true,
+						v7_relativeSplatPath: true
+					}}>
+						<AuthProvider>
 							<Suspense fallback={<LoadingFallback />}>
 								<Routes>
 									{/* Публичные маршруты */}
@@ -107,8 +107,8 @@ function App() {
 									<Route path="*" element={<Navigate to="/" replace />} />
 								</Routes>
 							</Suspense>
-						</Router>
-					</AuthProvider>
+						</AuthProvider>
+					</Router>
 				</CartProvider>
 			</ThemeProvider>
 		</QueryClientProvider>

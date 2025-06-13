@@ -4,7 +4,7 @@ import { useOrders, useCancelOrder } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { getOrderStatusInRussian } from '../constants/orderStatus';
-import { Order } from '../types';
+import { Order } from '../types/types';
 
 type OrderStatusType = Order['status'];
 

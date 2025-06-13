@@ -6,8 +6,9 @@ import { useCart } from '../context/CartContext';
 import { useProduct, useReviews } from '../services/api';
 import { ROUTES } from '../constants/navigation';
 import OptimizedImage from '../components/common/OptimizedImage';
-import ReviewForm from '../components/ReviewForm';
-import { Review } from '../types';
+import Review from '../components/Reviews/Review';
+import ReviewForm from '../components/Reviews/ReviewForm';
+import { Review as ReviewType } from '../types/types';
 
 const ProductDetails: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
@@ -48,7 +49,7 @@ const ProductDetails: React.FC = () => {
 				<Box sx={{ mb: 4 }}>
 					<ReviewForm
 						productId={product._id}
-						onReviewAdded={() => {
+						onReviewSubmitted={() => {
 							refetchReviews();
 						}}
 					/>
@@ -59,7 +60,7 @@ const ProductDetails: React.FC = () => {
 						Пока нет отзывов. Будьте первым!
 					</Typography>
 				) : (
-					reviews.map((review: Review) => (
+					reviews.map((review: ReviewType) => (
 						<Box key={`${review._id}-${review.createdAt}`} sx={{ mb: 2 }}>
 							<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
 								<Rating value={review.rating} readOnly size="small" />
@@ -86,7 +87,7 @@ const ProductDetails: React.FC = () => {
 	}
 
 	return (
-		<Container>
+		<Container sx={{ mt: 4 }}>
 			<Grid container spacing={4}>
 				<Grid item xs={12} md={6}>
 					<OptimizedImage

@@ -1,10 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, CartItem } from '../types';
-
-interface CartState {
-	products: CartItem[];
-	total: number;
-}
+import { Product, CartItem } from '../types/types';
 
 interface CartContextType {
 	items: CartItem[];
@@ -31,7 +26,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		return [];
 	});
 
-	const total = Array.isArray(items) ? items.reduce((sum, item) => sum + item.product.price * item.quantity, 0) : 0;
+	const total = React.useMemo(
+		() => items.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+		[items]
+	);
 
 	useEffect(() => {
 		try {

@@ -4,7 +4,7 @@ import { Container, Paper, Typography, Box, Button, TextField, Grid, Alert, Circ
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCreateOrder } from '../services/api';
-import { OrderItem, CreateOrderData, Coordinates, CartItem } from '../types';
+import { OrderItem, CreateOrderData, Coordinates, CartItem } from '../types/types';
 import { formatPhoneNumber } from '../utils/format';
 import { debounce } from 'lodash';
 import InputMask from 'react-input-mask';

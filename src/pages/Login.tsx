@@ -57,7 +57,7 @@ const Login: React.FC = () => {
 		}
 
 		try {
-			await login(email, password);
+			await login({ email, password });
 			setTimeout(() => {
 				navigate(ROUTES.HOME, { replace: true });
 			}, 0);

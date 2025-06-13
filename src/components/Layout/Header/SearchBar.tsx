@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Box, IconButton, InputBase, Paper, List, ListItem, ListItemButton, ListItemText, Menu } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
-import { Product } from '../../../types';
+import { Product } from '../../../types/types';
 import debounce from 'lodash/debounce';
 import { BREAKPOINTS } from '../../../constants/theme';
 

@@ -22,7 +22,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from '../../services/api';
-import { Product } from '../../types';
+import { Product } from '../../types/types';
 
 const Products: React.FC = () => {
 	const { data: products, isLoading } = useProducts();

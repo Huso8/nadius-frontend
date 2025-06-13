@@ -102,9 +102,11 @@ const Header: React.FC = () => {
 						sx={{
 							flexGrow: 1,
 							textDecoration: 'none',
-							fontFamily: 'JetBrains Mono',
-							fontSize: { xs: '20px', [BREAKPOINTS.MOBILE]: '30px' },
-							mx: { xs: 0, [BREAKPOINTS.MOBILE]: 0.5 }
+							fontFamily: '"JetBrains Mono", monospace',
+							fontSize: { xs: '24px', [BREAKPOINTS.MOBILE]: '40px' },
+							mx: { xs: 0, [BREAKPOINTS.MOBILE]: 0.5 },
+							fontWeight: 400,
+							letterSpacing: '0.03em'
 						}}
 					>
 						{'Nadius'}

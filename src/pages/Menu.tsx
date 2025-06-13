@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Grid, Typography, Box } from '@mui/material';
 import ProductCard from '../components/common/ProductCard';
 import { useProducts } from '../services/api';
-import { Product } from '../types';
+import { Product } from '../types/types';
 
 const Menu: React.FC = () => {
 	const { data: products = [], isLoading, error } = useProducts();

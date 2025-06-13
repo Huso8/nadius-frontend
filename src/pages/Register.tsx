@@ -64,7 +64,7 @@ const Register: React.FC = () => {
 		}
 
 		try {
-			await register(email, password, name);
+			await register({ email, password, name });
 			navigate(ROUTES.HOME);
 		} catch (err: any) {
 			console.error('Registration error:', err);

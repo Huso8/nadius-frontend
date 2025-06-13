@@ -1,129 +1,84 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth as useApiAuth } from '../services/api';
-import { ROUTES } from '../constants/navigation';
-import axios from 'axios';
-import { User } from '../types';
-import { ApiResponse } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { User, LoginData, RegisterData } from '../types/types';
+import { authService } from '../services/authService';
 import { useCart } from './CartContext';
-
-const API_URL = process.env.REACT_APP_API_URL;
-
-if (!API_URL) {
-	console.error('REACT_APP_API_URL is not defined in environment variables');
-}
 
 interface AuthContextType {
 	user: User | null;
-	isAuthenticated: boolean;
-	login: (email: string, password: string) => Promise<void>;
-	register: (email: string, password: string, name: string) => Promise<void>;
-	logout: () => void;
 	isLoading: boolean;
+	isAuthenticated: boolean;
+	login: (data: LoginData) => Promise<void>;
+	register: (data: RegisterData) => Promise<void>;
+	logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const [user, setUser] = useState<User | null>(() => {
-		const savedUser = localStorage.getItem('user');
-		return savedUser ? JSON.parse(savedUser) : null;
-	});
+	const [user, setUser] = useState<User | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
-	const { login: apiLogin, register: apiRegister } = useApiAuth();
+	const navigate = useNavigate();
 	const { clearCart } = useCart();
 
 	useEffect(() => {
-		const checkAuth = async () => {
-			const token = localStorage.getItem('token');
-			if (token) {
-				try {
-					const response = await axios.get<ApiResponse<User>>(`${API_URL}/api/auth/me`, {
-						headers: {
-							Authorization: `Bearer ${token}`
-						}
-					});
-					if (response.data && response.data.data) {
-						setUser(response.data.data);
-						localStorage.setItem('user', JSON.stringify(response.data.data));
-					}
-				} catch (error) {
-					console.error('Auth check error:', error);
-					localStorage.removeItem('token');
-					localStorage.removeItem('user');
-					setUser(null);
-				}
-			}
+		const token = localStorage.getItem('token');
+		if (token) {
+			authService.getCurrentUser()
+				.then(user => {
+					setUser(user);
+				})
+				.catch(() => {
+					authService.logout();
+				})
+				.finally(() => {
+					setIsLoading(false);
+				});
+		} else {
 			setIsLoading(false);
-		};
-
-		checkAuth();
+		}
 	}, []);
 
-	const login = async (email: string, password: string) => {
-		setIsLoading(true);
+	const login = async (userData: LoginData) => {
 		try {
-			const response = await apiLogin.mutateAsync({ email, password });
-			if (response?.token && response?.user) {
-				localStorage.setItem('token', response.token);
-				localStorage.setItem('user', JSON.stringify(response.user));
-				setUser(response.user);
-				clearCart();
-			} else {
-				throw new Error('Неверный формат ответа от сервера');
-			}
+			const response = await authService.login(userData);
+			setUser(response.user);
+			clearCart();
+			navigate('/');
 		} catch (error) {
-			if (axios.isAxiosError(error)) {
-				if (error.response?.status === 401) {
-					throw new Error('Неверный email или пароль');
-				}
-				throw new Error(error.response?.data?.message || 'Ошибка при входе');
-			}
 			throw error;
-		} finally {
-			setIsLoading(false);
 		}
 	};
 
-	const register = async (email: string, password: string, name: string) => {
-		setIsLoading(true);
+	const register = async (userData: RegisterData) => {
 		try {
-			const response = await apiRegister.mutateAsync({ email, password, name });
-			if (response?.token && response?.user) {
-				localStorage.setItem('token', response.token);
-				localStorage.setItem('user', JSON.stringify(response.user));
-				setUser(response.user);
-				clearCart();
-			} else {
-				throw new Error('Неверный формат ответа от сервера');
-			}
+			const response = await authService.register(userData);
+			setUser(response.user);
+			clearCart();
+			navigate('/');
 		} catch (error) {
-			console.error('Registration error:', error);
-			if (axios.isAxiosError(error)) {
-				const message = error.response?.data?.message || 'Ошибка при регистрации';
-				throw new Error(message);
-			}
 			throw error;
-		} finally {
-			setIsLoading(false);
 		}
 	};
 
 	const logout = () => {
-		localStorage.removeItem('token');
-		localStorage.removeItem('user');
+		authService.logout();
 		setUser(null);
 		clearCart();
+		navigate('/login');
 	};
 
 	return (
-		<AuthContext.Provider value={{
-			user,
-			isAuthenticated: !!user,
-			login,
-			register,
-			logout,
-			isLoading
-		}}>
+		<AuthContext.Provider
+			value={{
+				user,
+				isLoading,
+				isAuthenticated: !!user,
+				login,
+				register,
+				logout
+			}}
+		>
 			{children}
 		</AuthContext.Provider>
 	);
