@@ -62,14 +62,8 @@ const Login: React.FC = () => {
 				navigate(ROUTES.HOME, { replace: true });
 			}, 0);
 		} catch (err: any) {
-			if (err.message === 'Неверный email или пароль') {
-				setErrors({
-					email: 'Неверный email или пароль',
-					password: 'Неверный email или пароль'
-				});
-			} else {
-				setError(err.message || 'Ошибка при входе');
-			}
+			console.error('Login error:', err);
+			setError(err.message || 'Ошибка при входе');
 		}
 	}, [email, password, login, navigate, validateForm]);
 

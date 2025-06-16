@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Alert, Box } from '@mui/material';
+import { TextField, Button, Typography, Alert, Box, IconButton, InputAdornment } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ROUTES } from '../constants/navigation';
 import FormContainer from '../components/common/FormContainer';
 import LoadingPage from '../components/common/LoadingPage';
 import ErrorPage from '../components/common/ErrorPage';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 interface FormErrors {
 	email?: string;
@@ -21,6 +22,8 @@ const Register: React.FC = () => {
 	const [name, setName] = useState('');
 	const [error, setError] = useState('');
 	const [errors, setErrors] = useState<FormErrors>({});
+	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const { register, isLoading } = useAuth();
 	const navigate = useNavigate();
 
@@ -68,7 +71,11 @@ const Register: React.FC = () => {
 			navigate(ROUTES.HOME);
 		} catch (err: any) {
 			console.error('Registration error:', err);
-			setError(err.message || 'Ошибка при регистрации');
+			if (err.response?.data?.message) {
+				setError(err.response.data.message);
+			} else {
+				setError('Ошибка при регистрации');
+			}
 		}
 	};
 
@@ -122,7 +129,7 @@ const Register: React.FC = () => {
 					fullWidth
 					name="password"
 					label="Пароль"
-					type="password"
+					type={showPassword ? 'text' : 'password'}
 					id="password"
 					autoComplete="new-password"
 					value={password}
@@ -132,6 +139,19 @@ const Register: React.FC = () => {
 					}}
 					error={!!errors.password}
 					helperText={errors.password}
+					InputProps={{
+						endAdornment: (
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onClick={() => setShowPassword(!showPassword)}
+									edge="end"
+								>
+									{showPassword ? <VisibilityOff /> : <Visibility />}
+								</IconButton>
+							</InputAdornment>
+						),
+					}}
 				/>
 				<TextField
 					margin="normal"
@@ -139,7 +159,7 @@ const Register: React.FC = () => {
 					fullWidth
 					name="confirmPassword"
 					label="Подтверждение пароля"
-					type="password"
+					type={showConfirmPassword ? 'text' : 'password'}
 					id="confirmPassword"
 					autoComplete="new-password"
 					value={confirmPassword}
@@ -149,6 +169,19 @@ const Register: React.FC = () => {
 					}}
 					error={!!errors.confirmPassword}
 					helperText={errors.confirmPassword}
+					InputProps={{
+						endAdornment: (
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle confirm password visibility"
+									onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+									edge="end"
+								>
+									{showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+								</IconButton>
+							</InputAdornment>
+						),
+					}}
 				/>
 				<Button
 					type="submit"

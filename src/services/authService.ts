@@ -1,6 +1,7 @@
 import { api, API_ENDPOINTS } from './api/config';
 import { LoginData, RegisterData, AuthResponse, User } from '../types/types';
 import { ApiResponse } from './api/types';
+import axios from 'axios';
 
 export const authService = {
 	async getCurrentUser(): Promise<User> {
@@ -9,21 +10,35 @@ export const authService = {
 	},
 
 	async login(userData: LoginData): Promise<AuthResponse> {
-		const response = await api.post<ApiResponse<AuthResponse>>(
-			`${API_ENDPOINTS.AUTH}/login`,
-			userData
-		);
-		localStorage.setItem('token', response.data.data.token);
-		return response.data.data;
+		try {
+			const response = await api.post<ApiResponse<AuthResponse>>(
+				`${API_ENDPOINTS.AUTH}/login`,
+				userData
+			);
+			localStorage.setItem('token', response.data.data.token);
+			return response.data.data;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response?.status === 401) {
+				throw new Error('Неверный email или пароль');
+			}
+			throw error;
+		}
 	},
 
 	async register(userData: RegisterData): Promise<AuthResponse> {
-		const response = await api.post<ApiResponse<AuthResponse>>(
-			`${API_ENDPOINTS.AUTH}/register`,
-			userData
-		);
-		localStorage.setItem('token', response.data.data.token);
-		return response.data.data;
+		try {
+			const response = await api.post<ApiResponse<AuthResponse>>(
+				`${API_ENDPOINTS.AUTH}/register`,
+				userData
+			);
+			localStorage.setItem('token', response.data.data.token);
+			return response.data.data;
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response?.status === 400) {
+				throw new Error(error.response.data.message || 'Ошибка при регистрации');
+			}
+			throw error;
+		}
 	},
 
 	logout(): void {
