@@ -4,7 +4,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../../../types/types';
 import debounce from 'lodash/debounce';
-import { BREAKPOINTS } from '../../../constants/theme';
 
 interface SearchBarProps {
 	products: Product[];

@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Paper, Typography, Box, Button } from '@mui/material';
 import { useCart } from '../context/CartContext';
-import CartItem from '../components/Cart/CartItem';
+import CartItem from '../components/CartItem';
 
 const Cart: React.FC = () => {
 	const navigate = useNavigate();

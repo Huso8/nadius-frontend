@@ -10,12 +10,16 @@ interface MobileMenuProps {
 }
 
 const MobileMenu: React.FC<MobileMenuProps> = ({ open, onClose }) => {
-	const { isAuthenticated, logout } = useAuth();
+	const { user, logout } = useAuth();
 
 	const handleLogout = () => {
 		logout();
 		onClose();
 	};
+
+	const navItems = user
+		? NAVIGATION_ITEMS.filter(item => item.path !== '/track-order')
+		: NAVIGATION_ITEMS;
 
 	return (
 		<Drawer
@@ -24,7 +28,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ open, onClose }) => {
 			onClose={onClose}
 		>
 			<Box sx={{ width: 250, pt: 2 }}>
-				{NAVIGATION_ITEMS.map((item) => (
+				{navItems.map((item) => (
 					<Button
 						key={item.path}
 						fullWidth
@@ -38,7 +42,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ open, onClose }) => {
 					</Button>
 				))}
 				<Divider />
-				{isAuthenticated ? (
+				{user ? (
 					<>
 						<Button
 							fullWidth

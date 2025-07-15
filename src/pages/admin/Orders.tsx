@@ -21,8 +21,9 @@ import {
 	Chip
 } from '@mui/material';
 import { useAdminOrders, useUpdateOrderStatus } from '../../services/api';
-import { Order, OrderStatus, OrderItem } from '../../types/types';
+import { Order } from '../../types/types';
 import { formatDate } from '../../utils/dateUtils';
+import { getOrderStatusInRussian } from '../../constants/orderStatus';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 interface OrderStatusActionsProps {
@@ -39,6 +40,8 @@ const OrderStatusActions: React.FC<OrderStatusActionsProps> = ({ order, onStatus
 				return 'success';
 			case 'processing':
 				return 'info';
+			case 'on_the_way':
+				return 'primary';
 			case 'cancelled':
 				return 'error';
 			default:
@@ -46,23 +49,10 @@ const OrderStatusActions: React.FC<OrderStatusActionsProps> = ({ order, onStatus
 		}
 	};
 
-	const getStatusText = (status: Order['status']) => {
-		switch (status) {
-			case 'completed':
-				return 'Завершен';
-			case 'processing':
-				return 'В обработке';
-			case 'cancelled':
-				return 'Отменен';
-			default:
-				return 'Ожидает';
-		}
-	};
-
 	return (
 		<Box>
 			<Chip
-				label={getStatusText(order.status)}
+				label={getOrderStatusInRussian(order.status)}
 				color={getStatusColor(order.status)}
 				size="small"
 				onClick={() => setIsDialogOpen(true)}
@@ -84,9 +74,10 @@ const OrderStatusActions: React.FC<OrderStatusActionsProps> = ({ order, onStatus
 							}}
 						>
 							<MenuItem value="pending">Ожидает</MenuItem>
-							<MenuItem value="processing">В обработке</MenuItem>
-							<MenuItem value="completed">Завершен</MenuItem>
-							<MenuItem value="cancelled">Отменен</MenuItem>
+							<MenuItem value="processing">Собираем</MenuItem>
+							<MenuItem value="on_the_way">В пути</MenuItem>
+							<MenuItem value="completed">Завершён</MenuItem>
+							<MenuItem value="cancelled">Отменён</MenuItem>
 						</Select>
 					</FormControl>
 				</DialogContent>

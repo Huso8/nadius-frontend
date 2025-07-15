@@ -3,8 +3,8 @@ import { Card, CardContent, Grid, Typography, IconButton, Box } from '@mui/mater
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { CartItem as CartItemType } from '../../types/types';
-import { useCart } from '../../context/CartContext';
+import { CartItem as CartItemType } from '../types/types';
+import { useCart } from '../context/CartContext';
 
 interface CartItemProps {
 	item: CartItemType;

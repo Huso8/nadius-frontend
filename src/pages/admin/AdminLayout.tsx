@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
-import { Box, Drawer, AppBar, Toolbar, List, Typography, Divider, IconButton, ListItem, ListItemIcon, ListItemText, useTheme, useMediaQuery } from '@mui/material';
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
-import MenuIcon from '@mui/icons-material/Menu';
+import React from 'react';
+import { Box, AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton } from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ROUTES } from '../../constants/navigation';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import RestaurantIcon from '@mui/icons-material/Restaurant';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { useAuth } from '../../context/AuthContext';
-import { ROUTES } from '../../constants/navigation';
 import PeopleIcon from '@mui/icons-material/People';
 import RateReviewIcon from '@mui/icons-material/RateReview';
+import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
 
 const drawerWidth = 240;
 
@@ -19,62 +17,49 @@ interface AdminLayoutProps {
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-	const [mobileOpen, setMobileOpen] = useState(false);
-	const { logout } = useAuth();
+	const [mobileOpen, setMobileOpen] = React.useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
-	const theme = useTheme();
-	const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+	const menuItems = [
+		{ text: 'Дашборд', icon: <DashboardIcon />, path: ROUTES.ADMIN_DASHBOARD },
+		{ text: 'Товары', icon: <InventoryIcon />, path: ROUTES.ADMIN_PRODUCTS },
+		{ text: 'Заказы', icon: <ShoppingCartIcon />, path: ROUTES.ADMIN_ORDERS },
+		{ text: 'Пользователи', icon: <PeopleIcon />, path: ROUTES.ADMIN_USERS },
+		{ text: 'Отзывы', icon: <RateReviewIcon />, path: ROUTES.ADMIN_REVIEWS },
+		{ text: 'Выйти', icon: <LogoutIcon />, path: ROUTES.PROFILE }
+	];
 
 	const handleDrawerToggle = () => {
 		setMobileOpen(!mobileOpen);
 	};
 
-	const handleLogout = () => {
-		logout();
-		navigate(ROUTES.HOME);
-	};
-
-	const menuItems = [
-		{ text: 'Товары', icon: <InventoryIcon />, path: '/admin/products' },
-		{ text: 'Заказы', icon: <ShoppingCartIcon />, path: '/admin/orders' },
-		{ text: 'Пользователи', icon: <PeopleIcon />, path: '/admin/users' },
-		{ text: 'Отзывы', icon: <RateReviewIcon />, path: '/admin/reviews' },
-	];
-
 	const drawer = (
-		<div>
+		<Box>
 			<Toolbar>
 				<Typography variant="h6" noWrap component="div">
 					Админ-панель
 				</Typography>
 			</Toolbar>
-			<Divider />
 			<List>
 				{menuItems.map((item) => (
 					<ListItem
-						button
 						key={item.text}
-						component={RouterLink}
-						to={item.path}
-						selected={location.pathname === item.path}
-						onClick={() => isMobile && handleDrawerToggle()}
+						onClick={() => navigate(item.path)}
+						sx={{
+							cursor: 'pointer',
+							backgroundColor: location.pathname === item.path ? 'rgba(0, 0, 0, 0.08)' : 'transparent',
+							'&:hover': {
+								backgroundColor: 'rgba(0, 0, 0, 0.04)'
+							}
+						}}
 					>
 						<ListItemIcon>{item.icon}</ListItemIcon>
 						<ListItemText primary={item.text} />
 					</ListItem>
 				))}
 			</List>
-			<Divider />
-			<List>
-				<ListItem button onClick={handleLogout}>
-					<ListItemIcon>
-						<LogoutIcon />
-					</ListItemIcon>
-					<ListItemText primary="Выйти" />
-				</ListItem>
-			</List>
-		</div>
+		</Box>
 	);
 
 	return (
@@ -83,7 +68,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 				position="fixed"
 				sx={{
 					width: { sm: `calc(100% - ${drawerWidth}px)` },
-					ml: { sm: `${drawerWidth}px` },
+					ml: { sm: `${drawerWidth}px` }
 				}}
 			>
 				<Toolbar>
@@ -110,11 +95,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 					open={mobileOpen}
 					onClose={handleDrawerToggle}
 					ModalProps={{
-						keepMounted: true, // Better open performance on mobile.
+						keepMounted: true
 					}}
 					sx={{
 						display: { xs: 'block', sm: 'none' },
-						'& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+						'& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }
 					}}
 				>
 					{drawer}
@@ -123,7 +108,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 					variant="permanent"
 					sx={{
 						display: { xs: 'none', sm: 'block' },
-						'& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+						'& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }
 					}}
 					open
 				>
@@ -136,7 +121,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 					flexGrow: 1,
 					p: 3,
 					width: { sm: `calc(100% - ${drawerWidth}px)` },
-					mt: '64px',
+					mt: '64px'
 				}}
 			>
 				{children}

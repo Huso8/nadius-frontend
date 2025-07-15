@@ -1,90 +1,82 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, Typography, Box } from '@mui/material';
-import { motion } from 'framer-motion';
-import { styled } from '@mui/material/styles';
-
-const AnimatedLogo = styled(motion.img)({
-	width: 'min(480px, 90vw)',
-	maxWidth: '100%',
-	marginBottom: 40,
-	filter: 'drop-shadow(0 12px 48px rgba(139,109,92,0.22))',
-	background: 'rgba(255,255,255,0.95)',
-	borderRadius: '48px',
-	padding: '24px 48px',
-	display: 'block',
-	position: 'relative',
-	zIndex: 2,
-});
+import { useLocation, Link as RouterLink } from 'react-router-dom';
+import { Container, Typography, Box, CircularProgress, Alert } from '@mui/material';
+import { useOrder } from '../services/api/orders';
+import { useAuth } from '../context/AuthContext';
+import { Order } from '../types/types';
+import OrderDetails from '../components/OrderDetails';
 
 const OrderSuccess: React.FC = () => {
-	const navigate = useNavigate();
+	const location = useLocation();
+	const orderId = location.state?.orderId;
+	const { user } = useAuth();
+
+	const { data: order, isLoading, isError } = useOrder(orderId);
 
 	useEffect(() => {
-		// Автоматический редирект на профиль через 3 секунды
-		const timer = setTimeout(() => {
-			navigate('/profile');
-		}, 3000);
+		// Сохраняем заказ в localStorage только для неавторизованных пользователей
+		if (orderId && !user && order) {
+			const guestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
+			const alreadyExists = guestOrders.some((o: any) => o.id === orderId);
+			if (!alreadyExists) {
+				guestOrders.push({ id: orderId, contactInfo: order.contactInfo });
+				localStorage.setItem('guestOrders', JSON.stringify(guestOrders));
+			}
+		}
+	}, [orderId, user, order]);
 
-		return () => clearTimeout(timer);
-	}, [navigate]);
+	if (!orderId) {
+		return (
+			<Container maxWidth="sm">
+				<Alert severity="warning" sx={{ mt: 4 }}>
+					Информация о заказе не найдена. Возможно, вы перешли на эту страницу по прямой ссылке.
+				</Alert>
+			</Container>
+		);
+	}
+
+	if (isLoading) {
+		return (
+			<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+				<CircularProgress />
+			</Box>
+		);
+	}
+
+	if (isError || !order) {
+		return (
+			<Container maxWidth="sm">
+				<Alert severity="error" sx={{ mt: 4 }}>
+					Не удалось загрузить информацию о вашем заказе. Пожалуйста, проверьте почту или свяжитесь с нами.
+				</Alert>
+			</Container>
+		);
+	}
+
+	const { _id } = order as Order;
 
 	return (
-		<Container maxWidth="lg" sx={{
-			minHeight: '100vh',
-			display: 'flex',
-			flexDirection: 'column',
-			alignItems: 'center',
-			justifyContent: 'center',
-			background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)'
-		}}>
-			<Box sx={{
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-				textAlign: 'center'
-			}}>
-				<AnimatedLogo
-					src="/logo_nadius.png"
-					alt="Nadius logo"
-					initial={{ scale: 1 }}
-					animate={{
-						scale: [1, 1.1, 1],
-						filter: [
-							'drop-shadow(0 12px 48px rgba(139,109,92,0.22))',
-							'drop-shadow(0 12px 48px rgba(76,175,80,0.3))',
-							'drop-shadow(0 12px 48px rgba(139,109,92,0.22))'
-						]
-					}}
-					transition={{
-						duration: 2,
-						ease: "easeInOut",
-						times: [0, 0.5, 1]
-					}}
-				/>
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.5, duration: 0.8 }}
-				>
-					<Typography
-						variant="h4"
-						sx={{
-							color: '#4CAF50',
-							fontWeight: 600,
-							mb: 2
-						}}
-					>
-						Заказ успешно оформлен!
-					</Typography>
-					<Typography
-						variant="body1"
-						color="text.secondary"
-					>
-						Сейчас вы будете перенаправлены в профиль...
-					</Typography>
-				</motion.div>
+		<Container maxWidth="md" sx={{ py: 4 }}>
+			<Box sx={{ textAlign: 'center', mb: 4 }}>
+				<Typography variant="h4" component="h1" color="primary" gutterBottom>
+					Спасибо за ваш заказ!
+				</Typography>
+				<Typography variant="h5" component="p" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+					Заказ #{_id.slice(-6)}
+				</Typography>
 			</Box>
+
+			<OrderDetails
+				order={order as Order}
+				showTitle={false}
+				showStatus={false}
+				showReturnButton={true}
+				returnButtonProps={{
+					as: RouterLink,
+					to: '/menu',
+					variant: 'contained',
+				}}
+			/>
 		</Container>
 	);
 };

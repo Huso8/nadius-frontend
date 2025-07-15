@@ -20,7 +20,7 @@ export interface OrderItem {
 	price: number;
 }
 
-export type OrderStatus = 'pending' | 'processing' | 'completed' | 'cancelled';
+export type OrderStatus = 'pending' | 'processing' | 'on_the_way' | 'completed' | 'cancelled';
 
 export interface Coordinates {
 	lat: number;
@@ -72,25 +72,15 @@ export interface User {
 
 export interface Review {
 	_id: string;
-	user: {
+	user?: {
 		_id: string;
 		name: string;
 	};
-	product: string;
+	product?: string;
 	rating: number;
 	comment: string;
+	guestName?: string;
 	images?: string[];
-	createdAt: string;
-	updatedAt: string;
-}
-
-export interface Recipe {
-	id: number;
-	name: string;
-	description: string;
-	ingredients: string[];
-	instructions: string[];
-	image: string;
 	createdAt: string;
 	updatedAt: string;
 }

@@ -2,10 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Review } from '../../types/types';
 import { api, API_ENDPOINTS } from './config';
 
-export const useReviews = (productId: string) => {
+export const useReviews = (productId?: string) => {
 	return useQuery<Review[]>({
 		queryKey: ['reviews', productId],
 		queryFn: async () => {
+			if (!productId) return [];
 			try {
 				const response = await api.get<Review[]>(`${API_ENDPOINTS.REVIEWS}/${productId}`);
 				return response.data;
@@ -32,12 +33,18 @@ interface CreateReviewData {
 export const useAddReview = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async ({ productId, review }: { productId: string; review: CreateReviewData }) => {
-			const { data } = await api.post(`${API_ENDPOINTS.REVIEWS}/${productId}`, review);
+		mutationFn: async ({ productId, review }: { productId?: string; review: CreateReviewData }) => {
+			const url = productId
+				? `${API_ENDPOINTS.REVIEWS}/${productId}`
+				: API_ENDPOINTS.REVIEWS;
+			const { data } = await api.post(url, review);
 			return data;
 		},
 		onSuccess: (_, { productId }) => {
-			queryClient.invalidateQueries({ queryKey: ['reviews', productId] });
+			if (productId) {
+				queryClient.invalidateQueries({ queryKey: ['reviews', productId] });
+			}
+			queryClient.invalidateQueries({ queryKey: ['allReviews'] });
 		},
 	});
 }; 

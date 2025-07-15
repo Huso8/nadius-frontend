@@ -1,31 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, TextField, Button, Rating, Typography, Alert } from '@mui/material';
-import { useAuth } from '../../context/AuthContext';
-import { useAddReview, useReviews } from '../../services/api';
-import { FORBIDDEN_WORDS } from '../../constants/forbiddenWords';
+import { useAddReview } from '../services/api';
+import { FORBIDDEN_WORDS } from '../constants/forbiddenWords';
+import { useAuth } from '../context/AuthContext';
 
 const MAX_WORDS = 50;
 
 interface ReviewFormProps {
-	productId: string;
 	onReviewSubmitted: () => void;
+	canReview: boolean;
 }
 
-const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted }) => {
+const ReviewForm: React.FC<ReviewFormProps> = ({ onReviewSubmitted, canReview }) => {
 	const [rating, setRating] = useState<number | null>(null);
 	const [comment, setComment] = useState('');
 	const [error, setError] = useState<string | null>(null);
-	const [hasExistingReview, setHasExistingReview] = useState(false);
-	const { isAuthenticated, user } = useAuth();
 	const addReview = useAddReview();
-	const { data: reviews } = useReviews(productId);
-
-	useEffect(() => {
-		if (reviews && user) {
-			const existingReview = reviews.find(review => review.user?._id === user.id);
-			setHasExistingReview(!!existingReview);
-		}
-	}, [reviews, user]);
+	const { user } = useAuth();
 
 	const checkForbiddenWords = (text: string): string[] => {
 		const words = text.toLowerCase().split(/\s+/);
@@ -39,7 +30,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted })
 	const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newComment = e.target.value;
 		const wordCount = countWords(newComment);
-
 		if (wordCount <= MAX_WORDS) {
 			setComment(newComment);
 		}
@@ -56,7 +46,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted })
 			return;
 		}
 
-		// Проверка на запрещенные слова
 		const forbiddenWords = checkForbiddenWords(comment);
 		if (forbiddenWords.length > 0) {
 			setError(`Пожалуйста, не используйте запрещенные слова: ${forbiddenWords.join(', ')}`);
@@ -64,13 +53,22 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted })
 		}
 
 		try {
-			await addReview.mutateAsync({
-				productId,
+			let reviewPayload: any = {
 				review: {
 					rating,
 					comment
 				}
-			});
+			};
+			if (!user) {
+				const guestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
+				const lastOrder = guestOrders[guestOrders.length - 1];
+				if (lastOrder && lastOrder.contactInfo) {
+					reviewPayload.review.guestName = lastOrder.contactInfo.name;
+					reviewPayload.review.guestEmail = lastOrder.contactInfo.email;
+					reviewPayload.review.guestPhone = lastOrder.contactInfo.phone;
+				}
+			}
+			await addReview.mutateAsync(reviewPayload);
 			setRating(null);
 			setComment('');
 			onReviewSubmitted();
@@ -84,18 +82,10 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted })
 		}
 	};
 
-	if (!isAuthenticated) {
-		return (
-			<Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-				Войдите, чтобы оставить отзыв
-			</Typography>
-		);
-	}
-
-	if (hasExistingReview) {
+	if (!canReview) {
 		return (
 			<Alert severity="info" sx={{ mt: 2 }}>
-				Вы уже оставили отзыв на этот товар
+				Чтобы оставить отзыв, вам нужно сделать заказ
 			</Alert>
 		);
 	}

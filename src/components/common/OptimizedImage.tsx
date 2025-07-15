@@ -10,6 +10,8 @@ interface OptimizedImageProps {
 	className?: string;
 }
 
+const PLACEHOLDER = '/icon.jpg';
+
 const OptimizedImage: React.FC<OptimizedImageProps> = ({
 	src,
 	alt,
@@ -22,30 +24,16 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
 	const [error, setError] = useState(false);
 
 	useEffect(() => {
-		const img = new Image();
+		setIsLoaded(false);
+		setError(false);
+		const img = new window.Image();
 		img.src = src;
 		img.onload = () => setIsLoaded(true);
 		img.onerror = () => setError(true);
 	}, [src]);
 
-	if (error) {
-		return (
-			<Box
-				sx={{
-					width: width || '100%',
-					height: height || '200px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					backgroundColor: '#f5f5f5',
-					color: '#666',
-					...style,
-				}}
-			>
-				Ошибка загрузки изображения
-			</Box>
-		);
-	}
+	const displaySrc = error ? PLACEHOLDER : src;
+	const displayAlt = error ? 'Нет фото' : alt;
 
 	return (
 		<Box
@@ -56,7 +44,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
 				...style,
 			}}
 		>
-			{!isLoaded && (
+			{!isLoaded && !error && (
 				<Skeleton
 					variant="rectangular"
 					width="100%"
@@ -65,14 +53,14 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
 				/>
 			)}
 			<img
-				src={src}
-				alt={alt}
+				src={displaySrc}
+				alt={displayAlt}
 				loading="lazy"
 				style={{
 					width: '100%',
 					height: '100%',
 					objectFit: 'contain',
-					opacity: isLoaded ? 1 : 0,
+					opacity: isLoaded || error ? 1 : 0,
 					transition: 'opacity 0.3s ease-in-out',
 				}}
 				className={className}

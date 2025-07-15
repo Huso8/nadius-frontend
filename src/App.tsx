@@ -1,23 +1,26 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 import { CircularProgress, Box } from '@mui/material';
 import { QueryClientProvider } from '@tanstack/react-query';
-import theme from './theme/theme';
-import Layout from './components/Layout/Layout';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { queryClient } from './services/queryClient';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme/theme';
+import Layout from './components/Layout/Layout';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import Users from './pages/admin/Users';
+import Checkout from './pages/checkout/Checkout';
+import OrderSuccess from './pages/OrderSuccess';
+import ReviewsPage from './pages/Reviews';
+import TrackOrderPage from './pages/TrackOrder';
 
 // Ленивая загрузка компонентов
 const Home = React.lazy(() => import('./pages/Home'));
 const Menu = React.lazy(() => import('./pages/Menu'));
 const ProductDetails = React.lazy(() => import('./pages/ProductDetails'));
 const Cart = React.lazy(() => import('./pages/Cart'));
-const Checkout = React.lazy(() => import('./pages/Checkout'));
-const OrderSuccess = React.lazy(() => import('./pages/OrderSuccess'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
@@ -25,11 +28,10 @@ const Contacts = React.lazy(() => import('./pages/Contacts'));
 const Search = React.lazy(() => import('./pages/Search'));
 
 // Админ-компоненты
-const AdminLayout = React.lazy(() => import('./components/Admin/AdminLayout'));
+const AdminLayout = React.lazy(() => import('./pages/admin/AdminLayout'));
 const AdminDashboard = React.lazy(() => import('./pages/admin/Dashboard'));
 const AdminProducts = React.lazy(() => import('./pages/admin/Products'));
 const AdminOrders = React.lazy(() => import('./pages/admin/Orders'));
-const AdminUsers = React.lazy(() => import('./pages/admin/Users'));
 const AdminReviews = React.lazy(() => import('./pages/admin/Reviews'));
 
 // Компонент загрузки
@@ -80,7 +82,12 @@ function App() {
 											</AdminLayout>
 										</ProtectedRoute>
 									}>
-										<Route index element={<Navigate to="/admin/products" replace />} />
+										<Route index element={<Navigate to="/admin/dashboard" replace />} />
+										<Route path="dashboard" element={
+											<React.Suspense fallback={<LoadingFallback />}>
+												<AdminDashboard />
+											</React.Suspense>
+										} />
 										<Route path="products" element={
 											<React.Suspense fallback={<LoadingFallback />}>
 												<AdminProducts />
@@ -91,11 +98,7 @@ function App() {
 												<AdminOrders />
 											</React.Suspense>
 										} />
-										<Route path="users" element={
-											<React.Suspense fallback={<LoadingFallback />}>
-												<AdminUsers />
-											</React.Suspense>
-										} />
+										<Route path="users" element={<Users />} />
 										<Route path="reviews" element={
 											<React.Suspense fallback={<LoadingFallback />}>
 												<AdminReviews />
@@ -105,6 +108,8 @@ function App() {
 
 									{/* Редирект для несуществующих маршрутов */}
 									<Route path="*" element={<Navigate to="/" replace />} />
+									<Route path="/reviews" element={<Layout><ReviewsPage /></Layout>} />
+									<Route path="/track-order" element={<Layout><TrackOrderPage /></Layout>} />
 								</Routes>
 							</Suspense>
 						</AuthProvider>

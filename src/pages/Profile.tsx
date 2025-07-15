@@ -1,38 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Paper, CircularProgress, Alert, List, ListItem, ListItemText, Divider, Button, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Chip } from '@mui/material';
+import { Container, Typography, Box, Paper, CircularProgress, Alert, Divider, Button, Dialog, DialogTitle, DialogContent, DialogActions, Avatar } from '@mui/material';
 import { useOrders, useCancelOrder } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { getOrderStatusInRussian } from '../constants/orderStatus';
 import { Order } from '../types/types';
-
-type OrderStatusType = Order['status'];
-
-const OrderStatus: React.FC<{ status: OrderStatusType }> = ({ status }) => {
-	const getStatusColor = (status: OrderStatusType) => {
-		switch (status) {
-			case 'pending':
-				return 'warning';
-			case 'processing':
-				return 'info';
-			case 'completed':
-				return 'success';
-			case 'cancelled':
-				return 'error';
-			default:
-				return 'default';
-		}
-	};
-
-	return (
-		<Chip
-			label={getOrderStatusInRussian(status)}
-			color={getStatusColor(status)}
-			size="small"
-			sx={{ fontWeight: 'medium' }}
-		/>
-	);
-};
+import OrderStatusChip from '../components/common/OrderStatusChip';
 
 const OrderItem: React.FC<{ order: Order; onCancel: (orderId: string) => void }> = ({ order, onCancel }) => (
 	<Paper sx={{ p: 2, mb: 2 }}>
@@ -60,8 +32,9 @@ const OrderItem: React.FC<{ order: Order; onCancel: (orderId: string) => void }>
 		<Divider sx={{ mb: 2 }} />
 		<Box>
 			{order.products?.map((item: any) => (
-				<Box key={`${order._id}-${item._id}`} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
-					<Box>
+				<Box key={`${order._id}-${item._id}`} sx={{ display: 'flex', alignItems: 'center', py: 1 }}>
+					<Avatar src={item.product?.image} variant="rounded" sx={{ width: 56, height: 56, mr: 2 }} />
+					<Box sx={{ flexGrow: 1 }}>
 						<Typography variant="body1">
 							{item.product?.name || 'Товар недоступен'}
 						</Typography>
@@ -76,7 +49,7 @@ const OrderItem: React.FC<{ order: Order; onCancel: (orderId: string) => void }>
 			))}
 		</Box>
 		<Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-			<OrderStatus status={order.status} />
+			<OrderStatusChip status={order.status} />
 			{order.status === 'pending' && (
 				<Button
 					variant="outlined"
@@ -111,7 +84,7 @@ const OrdersList: React.FC<{ orders: Order[] | undefined; onCancel: (orderId: st
 };
 
 const Profile: React.FC = () => {
-	const { data: orders, isLoading: ordersLoading, error: ordersError } = useOrders();
+	const { data: orders, isLoading: ordersLoading, error: ordersError, refetch: refetchOrders } = useOrders();
 	const { user, isLoading: authLoading } = useAuth();
 	const navigate = useNavigate();
 	const cancelOrder = useCancelOrder();
@@ -121,8 +94,11 @@ const Profile: React.FC = () => {
 	useEffect(() => {
 		if (!authLoading && !user) {
 			navigate('/login');
+		} else if (user) {
+			// Принудительно обновляем список заказов при загрузке страницы
+			refetchOrders();
 		}
-	}, [user, authLoading, navigate]);
+	}, [user, authLoading, navigate, refetchOrders]);
 
 	const handleCancelClick = (orderId: string) => {
 		setSelectedOrderId(orderId);

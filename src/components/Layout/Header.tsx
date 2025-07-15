@@ -1,23 +1,12 @@
 import React, { useState } from 'react';
-import {
-	AppBar,
-	Toolbar,
-	Typography,
-	Button,
-	Badge,
-	Box,
-	IconButton,
-	Fab,
-	CircularProgress,
-	useScrollTrigger
-} from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Badge, Box, IconButton, Fab, CircularProgress, useScrollTrigger } from '@mui/material';
+import { useCart } from '../../context/CartContext';
+import { useTheme } from '@mui/material/styles';
+import { useProducts } from '../../services/api';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useCart } from '../../context/CartContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
-import { useProducts } from '../../services/api';
 import logo from '../../logo.png';
 import SearchBar from './Header/SearchBar';
 import Navigation from './Header/Navigation';
@@ -28,7 +17,7 @@ import { COLORS, BREAKPOINTS, SPACING } from '../../constants/theme';
 
 const Header: React.FC = () => {
 	const { items } = useCart();
-	const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+	const totalItems = React.useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const navigate = useNavigate();

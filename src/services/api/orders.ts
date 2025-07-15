@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Order, CreateOrderData } from '../../types/types';
 import { api, API_ENDPOINTS } from './config';
 
-export const useOrders = () => {
+export const useOrders = (options?: { enabled?: boolean }) => {
 	return useQuery<Order[]>({
 		queryKey: ['orders'],
 		queryFn: async () => {
@@ -14,7 +14,7 @@ export const useOrders = () => {
 				throw new Error('Ошибка при загрузке заказов');
 			}
 		},
-		enabled: true,
+		enabled: options?.enabled ?? true,
 		retry: 3,
 		refetchOnWindowFocus: true,
 		refetchOnMount: true,
@@ -68,7 +68,7 @@ export const useCreateOrder = () => {
 			return data;
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['orders'] });
+			return queryClient.invalidateQueries({ queryKey: ['orders'] });
 		},
 	});
 };
@@ -84,5 +84,17 @@ export const useCancelOrder = () => {
 			queryClient.invalidateQueries({ queryKey: ['orders'] });
 			queryClient.invalidateQueries({ queryKey: ['adminOrders'] });
 		},
+	});
+};
+
+export const useOrder = (orderId: string | null) => {
+	return useQuery({
+		queryKey: ['order', orderId],
+		queryFn: async () => {
+			if (!orderId) return null;
+			const { data } = await api.get(`${API_ENDPOINTS.ORDERS}/${orderId}`);
+			return data;
+		},
+		enabled: !!orderId,
 	});
 }; 

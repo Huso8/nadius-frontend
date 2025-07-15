@@ -1,12 +1,11 @@
 import React from 'react';
-import { Container, Typography, Box, Button, Grid, Card, CardContent, CardMedia } from '@mui/material';
+import { Container, Typography, Box, Button, Grid, Card } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 import OptimizedImage from '../components/common/OptimizedImage';
 
 const MotionTypography = motion.create(Typography);
-const MotionButton = motion.create(Button);
 const MotionCard = motion.create(Card);
 
 const StyledFeatureCard = styled(Card)(({ theme }) => ({
@@ -89,78 +88,42 @@ const Home: React.FC = () => {
 				}}
 			>
 				<Container maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-					<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2, position: 'relative', zIndex: 2 }}>
+					<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2, gap: 4 }}>
 						<OptimizedImage
 							src={LOGO_URL}
 							alt="Nadius logo"
 							style={{
 								width: 'min(480px, 90vw)',
 								maxWidth: '100%',
-								marginBottom: 40,
 								filter: 'drop-shadow(0 12px 48px rgba(139,109,92,0.22))',
 								background: 'rgba(255,255,255,0.95)',
 								borderRadius: '48px',
 								padding: '24px 48px',
 								display: 'block',
-								position: 'relative',
-								zIndex: 2,
 							}}
 						/>
-					</Box>
-					<MotionTypography
-						variant="h2"
-						color="white"
-						gutterBottom
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8 }}
-						sx={{
-							fontWeight: 700,
-							textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-							textAlign: 'center',
-						}}
-					>
-					</MotionTypography>
-					<MotionTypography
-						variant="h5"
-						color="white"
-						paragraph
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8, delay: 0.2 }}
-						sx={{ mb: 4, textShadow: '1px 1px 2px rgba(0,0,0,0.3)', textAlign: 'center' }}
-					>
-					</MotionTypography>
-					<Box component={motion.div}
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.8, delay: 0.4 }}
-						sx={{
-							mt: -20,
-							position: 'relative',
-							zIndex: 10,
-							pointerEvents: 'auto'
-						}}
-					>
-						<Button
-							variant="contained"
-							size="large"
-							component={RouterLink}
-							to="/menu"
-							sx={{
-								background: 'linear-gradient(to right, #8b6d5c, #a3d6c4)',
-								'&:hover': {
-									background: 'linear-gradient(to right, #7a5c4b, #92c5b3)',
-								},
-								px: 4,
-								py: 1.5,
-								position: 'relative',
-								zIndex: 10,
-								pointerEvents: 'auto'
-							}}
+						<motion.div
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.8, delay: 0.4 }}
 						>
-							Смотреть меню
-						</Button>
+							<Button
+								variant="contained"
+								size="large"
+								component={RouterLink}
+								to="/menu"
+								sx={{
+									background: 'linear-gradient(to right, #8b6d5c, #a3d6c4)',
+									'&:hover': {
+										background: 'linear-gradient(to right, #7a5c4b, #92c5b3)',
+									},
+									px: 4,
+									py: 1.5,
+								}}
+							>
+								Смотреть меню
+							</Button>
+						</motion.div>
 					</Box>
 				</Container>
 			</Box>
