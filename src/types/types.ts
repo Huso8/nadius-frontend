@@ -76,7 +76,6 @@ export interface Review {
 		_id: string;
 		name: string;
 	};
-	product?: string;
 	rating: number;
 	comment: string;
 	guestName?: string;

@@ -1,21 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Review } from '../../types/types';
 import { api, API_ENDPOINTS } from './config';
+import { useAuth } from '../../context/AuthContext';
 
-export const useReviews = (productId?: string) => {
+export const useReviews = () => {
 	return useQuery<Review[]>({
-		queryKey: ['reviews', productId],
+		queryKey: ['allReviews'],
 		queryFn: async () => {
-			if (!productId) return [];
 			try {
-				const response = await api.get<Review[]>(`${API_ENDPOINTS.REVIEWS}/${productId}`);
+				const response = await api.get<Review[]>(`${API_ENDPOINTS.REVIEWS}/all`);
 				return response.data;
 			} catch (error) {
 				console.error('Error fetching reviews:', error);
 				throw new Error('Ошибка при загрузке отзывов');
 			}
 		},
-		enabled: !!productId,
 		retry: 3,
 		refetchOnWindowFocus: true,
 		refetchOnMount: true,
@@ -32,18 +31,14 @@ interface CreateReviewData {
 
 export const useAddReview = () => {
 	const queryClient = useQueryClient();
+	const { user } = useAuth();
 	return useMutation({
-		mutationFn: async ({ productId, review }: { productId?: string; review: CreateReviewData }) => {
-			const url = productId
-				? `${API_ENDPOINTS.REVIEWS}/${productId}`
-				: API_ENDPOINTS.REVIEWS;
+		mutationFn: async ({ review }: { review: CreateReviewData }) => {
+			const url = user ? `${API_ENDPOINTS.REVIEWS}/general` : API_ENDPOINTS.REVIEWS;
 			const { data } = await api.post(url, review);
 			return data;
 		},
-		onSuccess: (_, { productId }) => {
-			if (productId) {
-				queryClient.invalidateQueries({ queryKey: ['reviews', productId] });
-			}
+		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['allReviews'] });
 		},
 	});

@@ -22,7 +22,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useReviews } from '../../services/api';
 
 const Reviews: React.FC = () => {
-	const { data: reviews = [], isLoading, error } = useReviews('all');
+	const { data: reviews = [], isLoading, error } = useReviews();
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [selectedReview, setSelectedReview] = useState<string | null>(null);
 
@@ -70,7 +70,6 @@ const Reviews: React.FC = () => {
 						<TableRow>
 							<TableCell>ID</TableCell>
 							<TableCell>Пользователь</TableCell>
-							<TableCell>Товар</TableCell>
 							<TableCell>Оценка</TableCell>
 							<TableCell>Комментарий</TableCell>
 							<TableCell>Действия</TableCell>
@@ -80,8 +79,7 @@ const Reviews: React.FC = () => {
 						{reviews.map((review) => (
 							<TableRow key={review._id}>
 								<TableCell>{review._id}</TableCell>
-								<TableCell>{review.user?.name || 'Аноним'}</TableCell>
-								<TableCell>{review.product}</TableCell>
+								<TableCell>{review.user?.name || review.guestName || 'Аноним'}</TableCell>
 								<TableCell>{review.rating}</TableCell>
 								<TableCell>{review.comment}</TableCell>
 								<TableCell>
