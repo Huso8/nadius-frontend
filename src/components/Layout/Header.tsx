@@ -7,7 +7,6 @@ import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MenuIcon from '@mui/icons-material/Menu';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import logo from '../../logo.png';
 import SearchBar from './Header/SearchBar';
 import Navigation from './Header/Navigation';
 import AuthMenu from './Header/AuthMenu';
@@ -81,7 +80,7 @@ const Header: React.FC = () => {
 						}
 					}}>
 						<RouterLink to={ROUTES.HOME} style={{ textDecoration: 'none' }}>
-							<img src={logo} alt="Nadius" />
+							<img src="/logo.png" alt="Nadius" />
 						</RouterLink>
 					</Box>
 					<Typography

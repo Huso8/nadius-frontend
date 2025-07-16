@@ -64,7 +64,7 @@ const features = [
 	},
 ];
 
-const LOGO_URL = '/logo_nadius.png';
+const LOGO_URL = '/gif-nadius.gif';
 const HERO_BG = 'https://images.unsplash.com/photo-1558326567-98ae2405596b?w=1920';
 const DESSERT_BG = 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=1920';
 // const DESSERT_BG = 'https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=1920';
