@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Box, Typography, Grid, CircularProgress } from '@mui/material';
-import { useProducts } from '../services/api';
-import ProductCard from '../components/ProductCard';
+import { useProducts } from '../../services/api';
+import ProductCard from '../ProductCard';
 
 const Search: React.FC = () => {
 	const [searchParams] = useSearchParams();

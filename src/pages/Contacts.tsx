@@ -106,8 +106,8 @@ const Contacts: React.FC = () => {
 												Адрес
 											</Typography>
 											<Typography variant="body1">
-												ул. Кондитерская, 1<br />
-												г. Москва, 123456
+												г. Москва, Остафьево<br />
+												ул. Любучанская 2к1
 											</Typography>
 										</Box>
 									</ContactInfo>
@@ -118,8 +118,8 @@ const Contacts: React.FC = () => {
 												Телефон
 											</Typography>
 											<Typography variant="body1">
-												+7 (999) 123-45-67<br />
-												+7 (999) 765-43-21
+												+7 (910) 450-00-10<br />
+												+7 (903) 188-88-23
 											</Typography>
 										</Box>
 									</ContactInfo>
@@ -130,8 +130,8 @@ const Contacts: React.FC = () => {
 												Email
 											</Typography>
 											<Typography variant="body1">
-												info@nadius.ru<br />
-												orders@nadius.ru
+												unavoyan96@mail.ru<br />
+												info@nadius.ru
 											</Typography>
 										</Box>
 									</ContactInfo>

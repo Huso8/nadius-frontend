@@ -62,12 +62,13 @@ export interface CreateOrderData {
 }
 
 export interface User {
-	id: string;
+	_id: string;
 	name: string;
 	email: string;
 	role: 'user' | 'admin';
 	phone?: string;
-	address?: string;
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 export interface Review {

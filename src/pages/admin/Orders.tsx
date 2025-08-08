@@ -124,7 +124,6 @@ const Orders: React.FC = () => {
 							<TableCell>Адрес</TableCell>
 							<TableCell>Статус и действия</TableCell>
 							<TableCell>Сумма</TableCell>
-							<TableCell>Товары</TableCell>
 							<TableCell>Комментарий</TableCell>
 						</TableRow>
 					</TableHead>
@@ -165,13 +164,6 @@ const Orders: React.FC = () => {
 									>
 										{(order.totalAmount || 0).toLocaleString('ru-RU')} ₽
 									</Typography>
-								</TableCell>
-								<TableCell>
-									{order.products.map((item) => (
-										<Box key={`${order._id}-${item._id}`} sx={{ mb: 0.5 }}>
-											{item.product?.name || 'Товар недоступен'} x {item.quantity}
-										</Box>
-									))}
 								</TableCell>
 								<TableCell>
 									{order.comment ? (

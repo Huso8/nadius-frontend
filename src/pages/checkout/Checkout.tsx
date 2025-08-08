@@ -19,7 +19,7 @@ const Checkout: React.FC = () => {
 		name: user?.name || '',
 		email: user?.email || '',
 		phone: user?.phone || '',
-		address: user?.address || '',
+		address: '',
 		comment: ''
 	};
 
@@ -43,7 +43,7 @@ const Checkout: React.FC = () => {
 				name: user.name || '',
 				email: user.email || '',
 				phone: user.phone || '',
-				address: user.address || ''
+				address: ''
 			}));
 		}
 	}, [user, setFormData]);

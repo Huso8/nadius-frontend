@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, Badge, Box, IconButton, Fab, CircularProgress, useScrollTrigger } from '@mui/material';
 import { useCart } from '../../context/CartContext';
 import { useTheme } from '@mui/material/styles';
-import { useProducts } from '../../services/api';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import MenuIcon from '@mui/icons-material/Menu';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import SearchBar from './Header/SearchBar';
 import Navigation from './Header/Navigation';
 import AuthMenu from './Header/AuthMenu';
 import MobileMenu from './Header/MobileMenu';
@@ -23,7 +21,7 @@ const Header: React.FC = () => {
 	const location = useLocation();
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down(BREAKPOINTS.MOBILE));
-	const { data: products } = useProducts();
+
 
 	// Эффект для изменения хедера при скролле
 	const trigger = useScrollTrigger({
@@ -130,7 +128,7 @@ const Header: React.FC = () => {
 						</Badge>
 					</Button>
 
-					<SearchBar products={products || []} />
+
 
 					<Box sx={{
 						display: 'flex',

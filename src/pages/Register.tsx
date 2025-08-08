@@ -31,8 +31,8 @@ const Register: React.FC = () => {
 
 		if (!name) {
 			newErrors.name = 'Имя обязательно';
-		} else if (name.length < 2) {
-			newErrors.name = 'Имя должно содержать минимум 2 символа';
+		} else if (name.length < 3) {
+			newErrors.name = 'Имя должно содержать минимум 3 символа';
 		}
 
 		if (!email) {
@@ -45,6 +45,10 @@ const Register: React.FC = () => {
 			newErrors.password = 'Пароль обязателен';
 		} else if (password.length < 6) {
 			newErrors.password = 'Пароль должен содержать минимум 6 символов';
+		} else if (!/(?=.*[A-Z])/.test(password)) {
+			newErrors.password = 'Пароль должен содержать хотя бы одну заглавную букву';
+		} else if (!/(?=.*[0-9])/.test(password)) {
+			newErrors.password = 'Пароль должен содержать хотя бы одну цифру';
 		}
 
 		if (!confirmPassword) {

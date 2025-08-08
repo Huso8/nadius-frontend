@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				.then(user => {
 					setUser(user);
 				})
-				.catch(() => {
+				.catch((error) => {
 					authService.logout();
 				})
 				.finally(() => {
@@ -68,17 +68,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		navigate('/login');
 	};
 
+	const contextValue = {
+		user,
+		isLoading,
+		isAuthenticated: !!user,
+		login,
+		register,
+		logout
+	};
+
 	return (
-		<AuthContext.Provider
-			value={{
-				user,
-				isLoading,
-				isAuthenticated: !!user,
-				login,
-				register,
-				logout
-			}}
-		>
+		<AuthContext.Provider value={contextValue}>
 			{children}
 		</AuthContext.Provider>
 	);

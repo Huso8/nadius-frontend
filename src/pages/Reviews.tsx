@@ -41,8 +41,8 @@ const ReviewsPage: React.FC = () => {
 	let alreadyReviewed = false;
 	if (user) {
 		canReview = Array.isArray(orders) && orders.length > 0;
-		if (canReview && reviews && user.id) {
-			alreadyReviewed = reviews.some(r => r.user?._id === user.id);
+		if (canReview && reviews && user._id) {
+			alreadyReviewed = reviews.some(r => r.user?._id === user._id);
 		}
 	} else {
 		const guestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');

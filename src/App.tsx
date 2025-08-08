@@ -25,7 +25,7 @@ const Profile = React.lazy(() => import('./pages/Profile'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Register = React.lazy(() => import('./pages/Register'));
 const Contacts = React.lazy(() => import('./pages/Contacts'));
-const Search = React.lazy(() => import('./pages/Search'));
+const Search = React.lazy(() => import('./components/common/Search'));
 
 // Админ-компоненты
 const AdminLayout = React.lazy(() => import('./pages/admin/AdminLayout'));
@@ -76,7 +76,7 @@ function App() {
 
 									{/* Админ-маршруты */}
 									<Route path="/admin" element={
-										<ProtectedRoute>
+										<ProtectedRoute requiredRole="admin">
 											<AdminLayout>
 												<Outlet />
 											</AdminLayout>

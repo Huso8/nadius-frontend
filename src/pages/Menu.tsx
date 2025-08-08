@@ -1,12 +1,18 @@
-import React from 'react';
-import { Container, Grid, Typography, Box, } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Container, Grid, Typography, Box } from '@mui/material';
 import ProductCard from '../components/ProductCard';
+import MenuSearch from '../components/MenuSearch';
 import { useProducts } from '../services/api';
 import { Product } from '../types/types';
 import OptimizedImage from '../components/common/OptimizedImage';
 
 const Menu: React.FC = () => {
 	const { data: products = [], isLoading, error } = useProducts();
+	const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+
+	useEffect(() => {
+		setFilteredProducts(products);
+	}, [products]);
 	if (isLoading) {
 		return (
 			<Container>
@@ -64,15 +70,38 @@ const Menu: React.FC = () => {
 			<Typography variant="h4" component="h1" gutterBottom align="center">
 				Наше меню
 			</Typography>
-			<Grid container spacing={4}>
-				{products
-					.filter((product: Product) => product._id)
-					.map((product: Product) => (
-						<Grid item key={product._id} xs={12} sm={6} md={4}>
-							<ProductCard product={product} />
-						</Grid>
-					))}
-			</Grid>
+
+			<MenuSearch
+				products={products}
+				onSearchChange={setFilteredProducts}
+			/>
+
+			{filteredProducts.length !== products.length && (
+				<Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
+					Найдено товаров: {filteredProducts.length} из {products.length}
+				</Typography>
+			)}
+
+			{filteredProducts.length === 0 ? (
+				<Box sx={{ textAlign: 'center', py: 8 }}>
+					<Typography variant="h6" color="text.secondary" gutterBottom>
+						Товары не найдены
+					</Typography>
+					<Typography variant="body2" color="text.secondary">
+						Попробуйте изменить поисковый запрос
+					</Typography>
+				</Box>
+			) : (
+				<Grid container spacing={4}>
+					{filteredProducts
+						.filter((product: Product) => product._id)
+						.map((product: Product) => (
+							<Grid item key={product._id} xs={12} sm={6} md={4}>
+								<ProductCard product={product} />
+							</Grid>
+						))}
+				</Grid>
+			)}
 		</Container>
 	);
 };

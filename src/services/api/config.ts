@@ -28,22 +28,19 @@ api.interceptors.request.use((config) => {
 
 // Обработка ошибок
 api.interceptors.response.use(
-	(response) => response,
+	(response) => {
+		return response;
+	},
 	(error: AxiosError<ApiError>) => {
+
 		if (error.response?.status === 401) {
-			// Очищаем токен только если это не страница логина
-			if (!window.location.pathname.includes('/login')) {
+			console.log('API: 401 error, current pathname:', window.location.pathname);
+			// Очищаем токен только если это не страница логина или регистрации
+			if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
 				localStorage.removeItem('token');
 				window.location.href = '/login';
 			}
 		}
-		console.error('API Error:', {
-			url: error.config?.url,
-			method: error.config?.method,
-			status: error.response?.status,
-			message: error.message,
-			response: error.response?.data
-		});
 		return Promise.reject(error);
 	}
 ); 

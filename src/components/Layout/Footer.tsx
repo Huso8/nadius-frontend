@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Container, Typography, Link } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { COLORS } from '../../constants/theme';
+import { ROUTES } from '../../constants/navigation';
 
 const Footer: React.FC = () => {
 	return (
@@ -22,7 +23,7 @@ const Footer: React.FC = () => {
 				<Typography variant="body2" align="center" sx={{ mt: 1 }}>
 					<Link
 						component={RouterLink}
-						to="/contact"
+						to={ROUTES.CONTACTS}
 						color="inherit"
 						sx={{ mx: 1 }}
 					>

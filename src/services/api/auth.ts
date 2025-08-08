@@ -28,10 +28,18 @@ export const useDeleteUser = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (userId: string) => {
-			await api.delete(`${API_ENDPOINTS.AUTH}/users/${userId}`);
+			try {
+				await api.delete(`${API_ENDPOINTS.AUTH}/users/${userId}`);
+			} catch (error) {
+				console.error('Error deleting user:', error);
+				throw error;
+			}
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['users'] });
+		},
+		onError: (error: any) => {
+			console.error('Error in useDeleteUser:', error);
 		},
 	});
 }; 
